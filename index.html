@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios Zara Home</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%' y='85%' style='font-size: 80px; text-anchor: middle;'%3E📄%3C/text%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A dashboard structure was chosen to provide a top-down information flow. It starts with high-level Key Performance Indicators (KPIs) for an immediate overview. This is followed by visual charts (donuts) that break down the status of key equipment. The core of the application is an interactive, filterable list of station cards, allowing the user to drill down from the general summary to specific, actionable details. This structure facilitates quick problem identification and targeted investigation, which is ideal for an audit report. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Overall statistics (total audited, issues). Goal: Inform. Viz: KPI Cards (HTML/Tailwind). Interaction: None. Justification: Provides immediate, high-impact summary.
+        - Report Info: Status breakdown for Scanners and Decouplers. Goal: Compare proportions. Viz: Donut Charts (Chart.js/Canvas). Interaction: Tooltips on hover. Justification: Clearly shows the proportion of 'Okay' vs. 'Issue' for key components without clutter.
+        - Report Info: Detailed status for each workstation. Goal: Organize & Detail. Viz: Interactive Table (HTML/Tailwind). Interaction: Filtering by status (All, Critical, Attention, OK). Justification: Presents detailed information in a structured, easilycomparable format, allowing users to actively query the data and focus on specific categories.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-gray-800 flex items-center justify-center min-h-screen">
+
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-lg bg-white rounded-lg shadow-xl border border-gray-200">
+    <h1 class="text-2xl font-bold text-gray-900 mb-4 text-center">Selecione um Relatório de Auditoria</h1>
+    <p class="text-gray-600 mb-6 text-center">Navegue pelos relatórios de verificação disponíveis por data.</p>
+
+    <div id="report-list" class="flex flex-col gap-3">
+        <div class="text-center text-gray-500" id="loading-message">Carregando relatórios disponíveis...</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const reportListDiv = document.getElementById('report-list');
+        const loadingMessage = document.getElementById('loading-message');
+        reportListDiv.innerHTML = ''; // Limpar a mensagem de carregamento
+
+        try {
+            // Caminho atualizado para o reports.json na raiz
+            const response = await fetch('reports.json');
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar reports.json: ${response.statusText}`);
+            }
+            const reports = await response.json();
+
+            if (reports.length === 0) {
+                reportListDiv.innerHTML = '<p class="text-center text-gray-500">Nenhum relatório disponível no momento.</p>';
+                return;
+            }
+
+            // Ordenar os relatórios por data, do mais recente para o mais antigo
+            reports.sort((a, b) => {
+                const dateA = new Date(a.date.split('/').reverse().join('-'));
+                const dateB = new Date(b.date.split('/').reverse().join('-'));
+                return dateB - dateA;
+            });
+
+            for (const report of reports) {
+                // Verificar se o arquivo do relatório realmente existe usando um HEAD request
+                try {
+                    // Caminho para o arquivo HTML do relatório continua dentro da pasta 'relatorios'
+                    const fileResponse = await fetch(`relatorios/${report.file}`, { method: 'HEAD' });
+                    if (fileResponse.ok) {
+                        const link = document.createElement('a');
+                        link.href = `relatorios/${report.file}`; // href também precisa do caminho para a pasta 'relatorios'
+                        link.className = 'block w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 text-center';
+                        link.textContent = `Relatório de ${report.date}`;
+                        reportListDiv.appendChild(link);
+                    } else {
+                        // Se o arquivo não for encontrado (ex: 404), ele não será adicionado à lista
+                        // e uma mensagem de aviso será exibida no console.
+                        const span = document.createElement('span');
+                        span.className = 'block w-full py-3 px-4 bg-gray-300 text-gray-600 font-semibold rounded-lg text-center cursor-not-allowed';
+                        span.textContent = `Relatório de ${report.date} (Indisponível)`;
+                        reportListDiv.appendChild(span);
+                        console.warn(`Relatório ${report.file} não encontrado no servidor.`);
+                    }
+                } catch (fileError) {
+                    const span = document.createElement('span');
+                    span.className = 'block w-full py-3 px-4 bg-gray-300 text-gray-600 font-semibold rounded-lg text-center cursor-not-allowed';
+                    span.textContent = `Relatório de ${report.date} (Erro ao verificar)`;
+                    reportListDiv.appendChild(span);
+                    console.error(`Erro ao verificar o relatório ${report.file}:`, fileError);
+                }
+            }
+        } catch (error) {
+            console.error('Falha ao carregar a lista de relatórios:', error);
+            reportListDiv.innerHTML = '<p class="text-center text-red-500">Não foi possível carregar os relatórios. Verifique o arquivo reports.json na raiz do projeto.</p>';
+        }
+    });
+</script>
+</body>
+</html>
