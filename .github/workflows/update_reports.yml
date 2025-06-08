@@ -1,0 +1,62 @@
+# Nome do nosso fluxo de trabalho de automação
+name: Atualizar Relatórios JSON
+
+# Define o gatilho: quando esta automação deve ser acionada
+on:
+  # 'repository_dispatch' permite que a gente acione este fluxo remotamente,
+  # a partir do nosso site, enviando um "sinal".
+  repository_dispatch:
+    # Vamos chamar o nosso sinal de 'add-new-report'
+    types: [add-new-report]
+
+# Define os trabalhos (jobs) a serem executados
+jobs:
+  update-files:
+    # O tipo de máquina virtual que o nosso robô irá usar
+    runs-on: ubuntu-latest
+
+    # Os passos que o robô irá seguir
+    steps:
+      # Passo 1: O robô precisa de uma cópia do código do repositório para trabalhar
+      - name: Checkout do repositório
+        uses: actions/checkout@v3
+        with:
+          # Usamos o nosso token secreto para que o robô tenha permissão para escrever de volta
+          token: ${{ secrets.PAT_TOKEN }}
+
+      # Passo 2: O robô vai ler os dados que enviámos do site e criar o novo ficheiro .json do relatório
+      - name: Criar o ficheiro do novo relatório
+        run: |
+          # O GitHub Actions recebe os dados enviados do nosso site e coloca-os num objeto chamado 'client_payload'
+          # Aqui, pegamos o conteúdo do ficheiro e o nome do ficheiro e escrevemos no disco da máquina virtual
+          echo '${{ github.event.client_payload.report_data }}' > ${{ github.event.client_payload.report_filename }}
+        shell: bash
+
+      # Passo 3: O robô vai ler o ficheiro reports.json, adicionar a nova entrada e salvar a versão atualizada
+      - name: Atualizar o ficheiro de índice reports.json
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          # Nome do ficheiro a ser lido e atualizado
+          name: "reports.json"
+          # Usamos o 'jq', uma ferramenta para manipular JSON, para adicionar o novo objeto ao array existente
+          json: |
+            [
+              .[] | select(.date != "${{ github.event.client_payload.report_date }}"),
+              {
+                "date": "${{ github.event.client_payload.report_date }}",
+                "file": "${{ github.event.client_payload.report_filename }}"
+              }
+            ]
+      
+      # Passo 4: O robô faz o commit das alterações de volta para o repositório
+      - name: Fazer o commit dos novos ficheiros
+        run: |
+          # Configura o nome e o e-mail que aparecerão no histórico de commits
+          git config --global user.name 'Relatorios-Action-Bot'
+          git config --global user.email 'actions@github.com'
+          # Adiciona todos os ficheiros novos ou modificados
+          git add .
+          # Cria a mensagem de commit
+          git commit -m "Adiciona novo relatório de ${{ github.event.client_payload.report_date }}" || echo "Nenhuma alteração para fazer commit"
+          # Empurra as alterações para o repositório
+          git push
