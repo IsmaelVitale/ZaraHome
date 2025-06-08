@@ -1,11 +1,11 @@
-// auth-guard.js - V5 com verificação de e-mail segura
+// auth-guard.js - V6 Final com Chave de Produção
 
-const NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY= "pk_live_Y2xlcmsucmVwb3J0c2luZGl0ZXguc2l0ZSQ";
-const CLERK_PUBLISHABLE_KEY = "sk_live_6NIZ5dGoGvCTHpldQcY6SZOLM5MNtBTtQLxm8KV6X0";
+// Chave publicável de PRODUÇÃO da sua aplicação no Clerk.
+const CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsucmVwb3J0c2luZGl0ZXguc2l0ZSQ";
 
 // Aguarda o carregamento completo do DOM para garantir que todos os elementos HTML existam.
 window.addEventListener('DOMContentLoaded', () => {
-
+    
     const protectedContent = document.getElementById('conteudo-protegido');
     const userControls = document.getElementById('user-controls');
 
@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
     script.async = true;
     script.src = `https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
     script.crossOrigin = "anonymous";
-
+    
     script.onload = () => {
         // Quando o script do Clerk estiver pronto, inicia a biblioteca.
         window.Clerk.load()
@@ -35,11 +35,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
                 // Ouve por mudanças no estado de autenticação (login/logout).
                 window.Clerk.addListener(({ session }) => {
-                    // ✅ CORREÇÃO: Verifica a existência da sessão e do utilizador
                     if (session && session.user) {
-                        const userEmail = session.user.primaryEmailAddress ? session.user.primaryEmailAddress.emailAddress : 'Utilizador sem e-mail primário';
-                        console.log("Estado da sessão alterado. Utilizador autenticado:", userEmail);
-
+                        const userIdentifier = session.user.username || (session.user.primaryEmailAddress ? session.user.primaryEmailAddress.emailAddress : 'Utilizador autenticado');
+                        console.log("Estado da sessão alterado. Utilizador autenticado:", userIdentifier);
+                        
                         protectedContent.style.display = 'block';
                         if (userControls) userControls.style.display = 'flex';
                         document.dispatchEvent(new CustomEvent('authReady'));
@@ -60,11 +59,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Verificação inicial quando a página carrega.
-                // ✅ CORREÇÃO: Verifica a existência da sessão e do utilizador
                 if (window.Clerk.session && window.Clerk.session.user) {
-                    const userEmail = window.Clerk.session.user.primaryEmailAddress ? window.Clerk.session.user.primaryEmailAddress.emailAddress : 'Utilizador sem e-mail primário';
-                    console.log("Sessão ativa encontrada para:", userEmail);
-
+                    const userIdentifier = window.Clerk.session.user.username || (window.Clerk.session.user.primaryEmailAddress ? window.Clerk.session.user.primaryEmailAddress.emailAddress : 'Utilizador autenticado');
+                    console.log("Sessão ativa encontrada para:", userIdentifier);
+                    
                     protectedContent.style.display = 'block';
                     if (userControls) userControls.style.display = 'flex';
                     document.dispatchEvent(new CustomEvent('authReady'));
