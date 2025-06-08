@@ -1,259 +1,274 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerador de Relatórios de Auditoria - Zara Home</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f8fafc; /* stone-50 */
-      color: #374151; /* gray-800 */
-    }
-    input[type="text"], input[type="date"], textarea, select {
-      border-radius: 0.5rem; /* rounded-lg */
-      border: 1px solid #d1d5db; /* gray-300 */
-      padding: 0.5rem 0.75rem;
-      width: 100%;
-      font-size: 0.875rem; /* text-sm */
-      background-color: #ffffff;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-    }
-    input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: #3b82f6; /* blue-500 */
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* ring-blue-200 */
-    }
-    .btn {
-      padding: 0.75rem 1.25rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-      transition-duration: 200ms;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .btn-primary {
-      background-color: #2563eb; /* blue-600 */
-      color: #ffffff;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    .btn-primary:hover {
-      background-color: #1d4ed8; /* blue-700 */
-    }
-    .station-section {
-      background-color: #fefefe;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.5rem;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Relatórios de Auditoria - Zara Home</title>
+    <!-- 1. Porteiro de segurança carregado -->
+    <script src="auth-guard.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #374151;
+        }
+        input[type="text"], input[type="date"], textarea, select {
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            font-size: 0.875rem;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .station-section {
+            background-color: #fefefe;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+    </style>
 </head>
 <body class="bg-stone-50 text-gray-800">
 
-<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+<!-- 2. Conteúdo principal envolvido pelo div de proteção -->
+<div id="conteudo-protegido" style="display: none;">
 
-  <div class="mb-6">
-    <a href="index.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-      Voltar para o Início
-    </a>
-  </div>
-
-  <header class="mb-8 text-center">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Gerador de Relatórios de Auditoria</h1>
-    <p class="text-lg text-gray-600">Preencha os detalhes para gerar um novo relatório de verificação de estações de trabalho.</p>
-  </header>
-
-  <form id="report-generator-form" class="bg-white p-8 rounded-lg shadow-xl border border-gray-200">
-    <!-- Container para mensagens de erro -->
-    <div id="message-container" class="mb-4 text-center text-red-600 font-semibold"></div>
-
-    <section class="mb-8 pb-8 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900 mb-4">Informações Gerais do Relatório</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="report-date" class="block text-sm font-medium text-gray-700 mb-1">Data do Relatório:</label>
-          <input type="date" id="report-date" name="reportDate" class="form-input" required>
-        </div>
-        <div>
-          <label for="report-sector" class="block text-sm font-medium text-gray-700 mb-1">Setor:</label>
-          <input type="text" id="report-sector" name="reportSector" class="form-input" value="Zara Home" required>
-        </div>
-      </div>
-    </section>
-
-    <section id="stations-container" class="mb-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes das Estações de Trabalho</h2>
-      <div id="station-fields-wrapper">
-        <!-- Campos das estações serão inseridos aqui via JavaScript -->
-      </div>
-    </section>
-
-    <div class="flex justify-end">
-      <button type="submit" class="btn btn-primary flex items-center">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        Gerar e Baixar Relatório e JSON
-      </button>
+    <!-- 3. Botões de controle do utilizador adicionados -->
+    <div class="absolute top-4 right-4" id="user-controls" style="display: none;">
+        <button id="user-profile-button" class="bg-white text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+            Meu Perfil
+        </button>
+        <button id="sign-out-button" class="ml-2 bg-white text-red-600 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
+            Sair
+        </button>
     </div>
-  </form>
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+        <div class="mb-6">
+            <a href="index.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Voltar para o Início
+            </a>
+        </div>
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Gerador de Relatórios de Auditoria</h1>
+            <p class="text-lg text-gray-600">Preencha os detalhes para gerar um novo relatório de verificação de estações de trabalho.</p>
+        </header>
+        <form id="report-generator-form" class="bg-white p-8 rounded-lg shadow-xl border border-gray-200">
+            <div id="message-container" class="mb-4 text-center text-red-600 font-semibold"></div>
+            <section class="mb-8 pb-8 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Informações Gerais do Relatório</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="report-date" class="block text-sm font-medium text-gray-700 mb-1">Data do Relatório:</label>
+                        <input type="date" id="report-date" name="reportDate" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="report-sector" class="block text-sm font-medium text-gray-700 mb-1">Setor:</label>
+                        <input type="text" id="report-sector" name="reportSector" class="form-input" value="Zara Home" required>
+                    </div>
+                </div>
+            </section>
+            <section id="stations-container" class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes das Estações de Trabalho</h2>
+                <div id="station-fields-wrapper"></div>
+            </section>
+            <div class="flex justify-end">
+                <button type="submit" class="btn-primary flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Gerar e Baixar Relatório e JSON
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
-  const stationsContainer = document.getElementById('station-fields-wrapper');
-  const messageContainer = document.getElementById('message-container');
+    const stationsContainer = document.getElementById('station-fields-wrapper');
+    const messageContainer = document.getElementById('message-container');
+    const statusMapping = {
+        printer: { 'Okay com ping': 'ok', 'Problema de Rede': 'attention', 'Offline': 'attention' },
+        scanner: { 'Okay (sem fio)': 'ok', 'Ausente': 'critical', 'Apenas a base': 'attention', 'Fora do Padrão (com fio)': 'attention', 'Defeituoso': 'critical' },
+        decoupler: { 'Luz verde (Okay)': 'ok', 'Luz vermelha (Erro)': 'attention', 'Luz apagada (Inoperante)': 'attention' }
+    };
 
-  const statusMapping = {
-    printer: { 'Okay com ping': 'ok', 'Problema de Rede': 'attention', 'Offline': 'attention' },
-    scanner: { 'Okay (sem fio)': 'ok', 'Ausente': 'critical', 'Apenas a base': 'attention', 'Fora do Padrão (com fio)': 'attention', 'Defeituoso': 'critical' },
-    decoupler: { 'Luz verde (Okay)': 'ok', 'Luz vermelha (Erro)': 'attention', 'Luz apagada (Inoperante)': 'attention' }
-  };
+    // ✅ CORREÇÃO: Os dados de status e observações foram limpos.
+    const fixedStationData = [
+        { id: 'TGT0002', serial: 'CZC4277318', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0003', serial: 'CZC4267SPW', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0004', serial: 'CZC4197BVT', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0005', serial: 'CZC4197BVL', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0006', serial: 'CZC4197BVM', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0007', serial: 'CZC4197BVR', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0008', serial: 'CZC4197BVK', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0009', serial: 'CZC4197BVQ', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0010', serial: 'CZC4197BVN', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0011', serial: 'CZC4197BVP', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0012', serial: 'CZC4257GBN', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' },
+        { id: 'TGT0013', serial: 'CZC4257GBP', printer: { text: '' }, scanner: { text: '' }, decoupler: { text: '' }, obs: '' }
+    ];
 
-  const fixedStationData = [
-    { id: 'TGT0002', serial: 'CZC4277318', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Atenção: Desacoplador com luz de erro.' },
-    { id: 'TGT0003', serial: 'CZC4267SPW', printer: { text: 'Okay com ping' }, scanner: { text: 'Ausente' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Crítico: Scanner ausente e desacoplador com erro.' },
-    { id: 'TGT0004', serial: 'CZC4197BVT', printer: { text: 'Okay com ping' }, scanner: { text: 'Apenas a base' }, decoupler: { text: 'Luz verde (Okay)' }, obs: 'Atenção: Scanner incompleto (apenas a base).' },
-    { id: 'TGT0005', serial: 'CZC4197BVL', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Atenção: Desacoplador com luz de erro.' },
-    { id: 'TGT0006', serial: 'CZC4197BVM', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz verde (Okay)' }, obs: 'Todos os itens em conformidade.' },
-    { id: 'TGT0007', serial: 'CZC4197BVR', printer: { text: 'Okay com ping' }, scanner: { text: 'Fora do Padrão (com fio)' }, decoupler: { text: 'Luz verde (Okay)' }, obs: 'Scanner com fio (fora do padrão sem fio).' },
-    { id: 'TGT0008', serial: 'CZC4197BVK', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz apagada (Inoperante)' }, obs: 'Atenção: Desacoplador inoperante (luz apagada).' },
-    { id: 'TGT0009', serial: 'CZC4197BVQ', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Atenção: Desacoplador com luz de erro.' },
-    { id: 'TGT0010', serial: 'CZC4197BVN', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Atenção: Desacoplador com luz de error.' },
-    { id: 'TGT0011', serial: 'CZC4197BVP', printer: { text: 'Okay com ping' }, scanner: { text: 'Okay (sem fio)' }, decoupler: { text: 'Luz verde (Okay)' }, obs: 'Todos os itens em conformidade.' },
-    { id: 'TGT0012', serial: 'CZC4257GBN', printer: { text: 'Okay com ping' }, scanner: { text: 'Ausente' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Crítico: Scanner ausente e desacoplador com erro.' },
-    { id: 'TGT0013', serial: 'CZC4257GBP', printer: { text: 'Okay com ping' }, scanner: { text: 'Ausente' }, decoupler: { text: 'Luz vermelha (Erro)' }, obs: 'Crítico: Scanner ausente e desacoplador com erro.' }
-  ];
+    function renderStationFields() {
+        stationsContainer.innerHTML = '';
+        fixedStationData.forEach(stationData => {
+            const stationDiv = document.createElement('div');
+            stationDiv.className = 'station-section';
 
-  function renderStationFields() {
-    stationsContainer.innerHTML = '';
-    fixedStationData.forEach(stationData => {
-      const stationDiv = document.createElement('div');
-      stationDiv.className = 'station-section';
-      stationDiv.dataset.stationId = stationData.id;
-      let optionsHtml = (type, selectedValue) =>
-              Object.keys(statusMapping[type]).map(option => `<option value="${option}" ${selectedValue === option ? 'selected' : ''}>${option}</option>`).join('');
-      // MODIFICAÇÃO: Removido 'readonly' e classes de estilo do campo de número de série.
-      stationDiv.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-800">Estação ${stationData.id}</h3></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">ID da Estação:</label><input type="text" name="stationId" class="form-input bg-gray-100 cursor-not-allowed" value="${stationData.id}" readonly></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Nº de Série (TGT):</label><input type="text" name="serial" class="form-input" value="${stationData.serial}"></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">Status Impressora:</label><select name="printerStatus" class="form-input" required>${optionsHtml('printer', stationData.printer.text)}</select></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Status Scanner:</label><select name="scannerStatus" class="form-input" required>${optionsHtml('scanner', stationData.scanner.text)}</select></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Status Desacoplador:</label><select name="decouplerStatus" class="form-input" required>${optionsHtml('decoupler', stationData.decoupler.text)}</select></div></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Observações / Ações Necessárias:</label><textarea name="observations" rows="2" class="form-input">${stationData.obs}</textarea></div>`;
-      stationsContainer.appendChild(stationDiv);
-    });
-  }
+            // Função auxiliar para gerar as opções do select
+            let optionsHtml = (type) => Object.keys(statusMapping[type]).map(option => `<option value="${option}">${option}</option>`).join('');
 
-  document.addEventListener('DOMContentLoaded', renderStationFields);
-
-  document.getElementById('report-generator-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    messageContainer.textContent = '';
-
-    const reportDateInput = document.getElementById('report-date').value;
-    if (!reportDateInput) {
-      messageContainer.textContent = 'ERRO: Por favor, selecione a data do relatório.';
-      return;
+            // ✅ CORREÇÃO: A geração do HTML foi atualizada para incluir um valor padrão e forçar a seleção.
+            stationDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Estação ${stationData.id}</h3>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ID da Estação:</label>
+                <input type="text" name="stationId" class="form-input bg-gray-100 cursor-not-allowed" value="${stationData.id}" readonly>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nº de Série (TGT):</label>
+                <input type="text" name="serial" class="form-input" value="${stationData.serial}">
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status Impressora:</label>
+                <select name="printerStatus" class="form-input" required>
+                    <option value="" disabled selected>Selecione um status</option>
+                    ${optionsHtml('printer')}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status Scanner:</label>
+                <select name="scannerStatus" class="form-input" required>
+                    <option value="" disabled selected>Selecione um status</option>
+                    ${optionsHtml('scanner')}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status Desacoplador:</label>
+                <select name="decouplerStatus" class="form-input" required>
+                    <option value="" disabled selected>Selecione um status</option>
+                    ${optionsHtml('decoupler')}
+                </select>
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Observações / Ações Necessárias:</label>
+            <textarea name="observations" rows="2" class="form-input" placeholder="Nenhuma observação...">${stationData.obs}</textarea>
+        </div>
+      `;
+            stationsContainer.appendChild(stationDiv);
+        });
     }
-    const reportSectorInput = document.getElementById('report-sector').value;
 
-    const [year, month, day] = reportDateInput.split('-');
-    const formattedDate = `${day}/${month}/${year}`;
-
-    // Gerar o nome do arquivo com base na data por extenso
-    const dateForFilename = new Date(year, month - 1, day);
-    const reportFileName = dateToFileName(dateForFilename);
-
-    // Coleta de dados do formulário
-    const collectedStationData = Array.from(document.querySelectorAll('.station-section')).map(section => {
-      const printerText = section.querySelector('select[name="printerStatus"]').value;
-      const scannerText = section.querySelector('select[name="scannerStatus"]').value;
-      const decouplerText = section.querySelector('select[name="decouplerStatus"]').value;
-      const printerStatusKey = statusMapping.printer[printerText] || 'neutral';
-      const scannerStatusKey = statusMapping.scanner[scannerText] || 'neutral';
-      const decouplerStatusKey = statusMapping.decoupler[decouplerText] || 'neutral';
-      let overallStatus = 'ok';
-      if (printerStatusKey === 'critical' || scannerStatusKey === 'critical' || decouplerStatusKey === 'critical') overallStatus = 'critical';
-      else if (printerStatusKey === 'attention' || scannerStatusKey === 'attention' || decouplerStatusKey === 'attention') overallStatus = 'attention';
-
-      return {
-        id: section.querySelector('input[name="stationId"]').value,
-        serial: section.querySelector('input[name="serial"]').value, // Agora pega o valor editado
-        printer: { status: printerStatusKey, text: printerText },
-        scanner: { status: scannerStatusKey, text: scannerText },
-        decoupler: { status: decouplerStatusKey, text: decouplerText },
-        obs: section.querySelector('textarea[name="observations"]').value,
-        overall: overallStatus
-      };
+    // Espera a autenticação estar pronta para renderizar o conteúdo dinâmico
+    document.addEventListener('authReady', () => {
+        renderStationFields();
     });
 
-    const totalStations = collectedStationData.length;
-    const stationsWithOccurrences = collectedStationData.filter(s => s.overall !== 'ok').length;
-    const decouplerErrorCount = collectedStationData.filter(s => s.decoupler.status !== 'ok').length;
-    const scannerAbsentCount = collectedStationData.filter(s => s.scanner.text.includes('Ausente')).length;
-    const decouplerFailureRate = totalStations > 0 ? ((decouplerErrorCount / totalStations) * 100).toFixed(0) : 0;
+    document.getElementById('report-generator-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        messageContainer.textContent = '';
+        const reportDateInput = document.getElementById('report-date').value;
+        if (!reportDateInput) {
+            messageContainer.textContent = 'ERRO: Por favor, selecione a data do relatório.';
+            return;
+        }
+        const reportSectorInput = document.getElementById('report-sector').value;
+        const [year, month, day] = reportDateInput.split('-');
+        const formattedDate = `${day}/${month}/${year}`;
+        const dateForFilename = new Date(year, month - 1, day);
+        const reportFileName = dateToFileName(dateForFilename);
+        const collectedStationData = Array.from(document.querySelectorAll('.station-section')).map(section => {
+            const printerText = section.querySelector('select[name="printerStatus"]').value;
+            const scannerText = section.querySelector('select[name="scannerStatus"]').value;
+            const decouplerText = section.querySelector('select[name="decouplerStatus"]').value;
+            const printerStatusKey = statusMapping.printer[printerText] || 'neutral';
+            const scannerStatusKey = statusMapping.scanner[scannerText] || 'neutral';
+            const decouplerStatusKey = statusMapping.decoupler[decouplerText] || 'neutral';
+            let overallStatus = 'ok';
+            if (printerStatusKey === 'critical' || scannerStatusKey === 'critical' || decouplerStatusKey === 'critical') overallStatus = 'critical';
+            else if (printerStatusKey === 'attention' || scannerStatusKey === 'attention' || decouplerStatusKey === 'attention') overallStatus = 'attention';
+            return { id: section.querySelector('input[name="stationId"]').value, serial: section.querySelector('input[name="serial"]').value, printer: { status: printerStatusKey, text: printerText }, scanner: { status: scannerStatusKey, text: scannerText }, decoupler: { status: decouplerStatusKey, text: decouplerText }, obs: section.querySelector('textarea[name="observations"]').value, overall: overallStatus };
+        });
+        const totalStations = collectedStationData.length;
+        const stationsWithOccurrences = collectedStationData.filter(s => s.overall !== 'ok').length;
+        const decouplerErrorCount = collectedStationData.filter(s => s.decoupler.status !== 'ok').length;
+        const scannerAbsentCount = collectedStationData.filter(s => s.scanner.text.includes('Ausente')).length;
+        const decouplerFailureRate = totalStations > 0 ? ((decouplerErrorCount / totalStations) * 100).toFixed(0) : 0;
+        const generatedHtmlContent = generateReportHtml(formattedDate, reportSectorInput, totalStations, stationsWithOccurrences, decouplerFailureRate, scannerAbsentCount, collectedStationData);
+        downloadFile(generatedHtmlContent, reportFileName, 'text/html');
+        try {
+            let reports = [];
+            const response = await fetch('reports.json');
+            if (response.ok) reports = await response.json();
+            else if (response.status !== 404) throw new Error('Falha ao carregar reports.json');
+            reports.push({ date: formattedDate, file: reportFileName });
+            const jsonContent = JSON.stringify(reports, null, 2);
+            downloadFile(jsonContent, 'reports.json', 'application/json');
+        } catch (error) {
+            console.error("Não foi possível carregar ou atualizar o 'reports.json'. Um novo arquivo será gerado.", error);
+            const newReports = [{ date: formattedDate, file: reportFileName }];
+            const jsonContent = JSON.stringify(newReports, null, 2);
+            downloadFile(jsonContent, 'reports.json', 'application/json');
+        }
+    });
 
-    // Gerar e baixar o relatório HTML
-    const generatedHtmlContent = generateReportHtml(formattedDate, reportSectorInput, totalStations, stationsWithOccurrences, decouplerFailureRate, scannerAbsentCount, collectedStationData);
-    downloadFile(generatedHtmlContent, reportFileName, 'text/html');
-
-    // Carregar, atualizar e baixar o JSON
-    try {
-      let reports = [];
-      const response = await fetch('reports.json');
-      if (response.ok) {
-        reports = await response.json();
-      } else if (response.status !== 404) {
-        throw new Error('Falha ao carregar reports.json');
-      }
-
-      // Adicionar o novo relatório ao array
-      reports.push({
-        date: formattedDate,
-        file: reportFileName
-      });
-
-      // Baixar o arquivo reports.json atualizado
-      const jsonContent = JSON.stringify(reports, null, 2);
-      downloadFile(jsonContent, 'reports.json', 'application/json');
-
-    } catch (error) {
-      console.error("Não foi possível carregar ou atualizar o 'reports.json'. Um novo arquivo será gerado.", error);
-      // Se falhar, cria um novo JSON do zero e baixa
-      const newReports = [{ date: formattedDate, file: reportFileName }];
-      const jsonContent = JSON.stringify(newReports, null, 2);
-      downloadFile(jsonContent, 'reports.json', 'application/json');
+    function dateToFileName(date) {
+        const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];
+        const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+        const dia = dias[date.getDate()];
+        const mes = meses[date.getMonth()];
+        return `${dia}de${mes}.html`;
     }
-  });
 
-  function dateToFileName(date) {
-    const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];
-    const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+    function generateReportHtml(reportDate, reportSector, totalStations, stationsWithOccurrences, decouplerFailureRate, scannerAbsentCount, stationsData) {
+        const scannerCounts = stationsData.reduce((acc, s) => { (s.scanner.text.includes('Okay')) ? acc.ok++ : (s.scanner.text.includes('Ausente')) ? acc.absent++ : (s.scanner.text.includes('Padrão') && s.scanner.text.includes('fio')) ? acc.nonStandard++ : (s.scanner.text.includes('base')) && acc.incomplete++; return acc; }, { ok: 0, absent: 0, nonStandard: 0, incomplete: 0 });
+        const decouplerCounts = stationsData.reduce((acc, s) => { (s.decoupler.text.includes('verde')) ? acc.ok++ : (s.decoupler.text.includes('vermelha')) ? acc.error++ : (s.decoupler.text.includes('apagada')) && acc.off++; return acc; }, { ok: 0, error: 0, off: 0 });
+        const stationsDataJson = JSON.stringify(stationsData);
+        return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Painel de Auditoria - ${reportSector}</title><script src="auth-guard.js" defer><\/script><script src="https://cdn.tailwindcss.com"><\/script><script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Inter",sans-serif}.chart-container{position:relative;width:100%;max-width:320px;margin:auto;height:320px}.status-badge{display:inline-flex;align-items:center;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:500}.status-ok{background-color:#dcfce7;color:#166534}.status-attention{background-color:#fef9c3;color:#854d0e}.status-critical{background-color:#fee2e2;color:#991b1b}.status-neutral{background-color:#e5e7eb;color:#374151}.filter-btn.active{background-color:#1f2937;color:#fff;font-weight:600}<\/style></head><body class="bg-stone-50 text-gray-800"><div id="conteudo-protegido" style="display: none;"><div id="user-controls" style="display: none;" class="absolute top-4 right-4"><button id="user-profile-button" class="bg-white text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">Meu Perfil</button><button id="sign-out-button" class="ml-2 bg-white text-red-600 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">Sair</button></div><div class="container mx-auto p-4 sm:p-6 lg:p-8"><header class="mb-8"><h1 class="text-3xl font-bold text-gray-900">Painel de Auditoria de Estações de Trabalho</h1><p class="text-lg text-gray-600">Setor: ${reportSector} | Data da Verificação: ${reportDate}</p></header><section id="kpis" class="mb-8"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Total de Estações</h2><p class="text-3xl font-semibold text-gray-900">${totalStations}</p></div><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Estações com Ocorrências</h2><p class="text-3xl font-semibold text-red-600">${stationsWithOccurrences}</p></div><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Taxa de Falha (Desacoplador)</h2><p class="text-3xl font-semibold text-red-600">${decouplerFailureRate}%</p></div><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Scanners Ausentes</h2><p class="text-3xl font-semibold text-yellow-600">${scannerAbsentCount}</p></div></div></section><section id="summary-charts" class="mb-8 bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-xl font-bold text-gray-900 mb-6">Resumo Visual dos Equipamentos</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-lg font-semibold text-center text-gray-700 mb-2">Status dos Scanners</h3><div class="chart-container"><canvas id="scannerChart"></canvas></div></div><div><h3 class="text-lg font-semibold text-center text-gray-700 mb-2">Status dos Desacopladores</h3><div class="chart-container"><canvas id="decouplerChart"></canvas></div></div></div></section><section id="detailed-view"><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes por Estação de Trabalho</h2><div id="filters" class="flex flex-wrap gap-2 mb-6"><button class="filter-btn active py-2 px-4 rounded-lg bg-gray-200" data-filter="all">Todos</button><button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="critical">Críticos</button><button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="attention">Com Atenção</button><button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="ok">Conformes</button></div><div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estação</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nº de Série</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Impressora</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Scanner</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Desacoplador</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Observação</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Geral</th></tr></thead><tbody id="station-table-body" class="bg-white divide-y"></tbody></table></div></div></section></div></div><script>const stationData=${stationsDataJson};document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementById("station-table-body"),e={ok:{class:"status-ok",icon:'<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'},attention:{class:"status-attention",icon:'<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'},critical:{class:"status-critical",icon:'<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>'},neutral:{class:"status-neutral",icon:""}};(()=>{t.innerHTML="",stationData.forEach(s=>{const a=document.createElement("tr");a.className="station-row bg-white hover:bg-gray-50",a.dataset.status=s.overall;const n=e[s.printer.status],o=e[s.scanner.status],r=e[s.decoupler.status],c=e[s.overall].class;let l=s.overall.charAt(0).toUpperCase()+s.overall.slice(1);"Ok"===l&&(l="Conforme"),a.innerHTML='<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">'+s.id+'</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">'+s.serial+'</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+n.class+'">'+n.icon+s.printer.text+'</span></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+o.class+'">'+o.icon+s.scanner.text+'</span></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+r.class+'">'+r.icon+s.decoupler.text+'</span></td><td class="px-6 py-4 text-sm text-gray-600 break-words max-w-xs">'+s.obs+'</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+c+'">'+l+'</span></td>',t.appendChild(a)})})();const s=document.getElementById("filters");s.addEventListener("click",t=>{if("BUTTON"!==t.target.tagName)return;const e=t.target.dataset.filter;s.querySelector(".active").classList.remove("active"),t.target.classList.add("active"),document.querySelectorAll(".station-row").forEach(t=>{""===(e==="all"||t.dataset.status===e?"":"none")?t.style.display="":t.style.display="none"})});const a={responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"bottom",labels:{padding:20,boxWidth:12,font:{size:14}}},tooltip:{bodyFont:{size:14},titleFont:{size:16}}},cutout:"60%"};new Chart(document.getElementById("scannerChart"),{type:"doughnut",data:{labels:["Conforme","Ausente","Fora do Padrão","Incompleto"],datasets:[{label:"Status dos Scanners",data:[${scannerCounts.ok},${scannerCounts.absent},${scannerCounts.nonStandard},${scannerCounts.incomplete}],backgroundColor:["#22c55e","#ef4444","#f97316","#eab308"],borderColor:"#fff",borderWidth:2}]},options:a}),new Chart(document.getElementById("decouplerChart"),{type:"doughnut",data:{labels:["Conforme","Com Erro","Inoperante"],datasets:[{label:"Status dos Desacopladores",data:[${decouplerCounts.ok},${decouplerCounts.error},${decouplerCounts.off}],backgroundColor:["#22c55e","#ef4444","#f59e0b"],borderColor:"#fff",borderWidth:2}]},options:a})});<\/script></body></html>`;
+    }
 
-    const dia = dias[date.getDate()];
-    const mes = meses[date.getMonth()];
-
-    return `${dia}de${mes}.html`;
-  }
-
-  function generateReportHtml(reportDate, reportSector, totalStations, stationsWithOccurrences, decouplerFailureRate, scannerAbsentCount, stationsData) {
-    const scannerCounts = stationsData.reduce((acc, s) => { (s.scanner.text.includes('Okay')) ? acc.ok++ : (s.scanner.text.includes('Ausente')) ? acc.absent++ : (s.scanner.text.includes('Padrão') && s.scanner.text.includes('fio')) ? acc.nonStandard++ : (s.scanner.text.includes('base')) && acc.incomplete++; return acc; }, { ok: 0, absent: 0, nonStandard: 0, incomplete: 0 });
-    const decouplerCounts = stationsData.reduce((acc, s) => { (s.decoupler.text.includes('verde')) ? acc.ok++ : (s.decoupler.text.includes('vermelha')) ? acc.error++ : (s.decoupler.text.includes('apagada')) && acc.off++; return acc; }, { ok: 0, error: 0, off: 0 });
-    const stationsDataJson = JSON.stringify(stationsData);
-    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Painel de Auditoria - ${reportSector}</title><script src="https://cdn.tailwindcss.com"><\/script><script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Inter",sans-serif}.chart-container{position:relative;width:100%;max-width:320px;margin:auto;height:320px}.status-badge{display:inline-flex;align-items:center;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:500}.status-ok{background-color:#dcfce7;color:#166534}.status-attention{background-color:#fef9c3;color:#854d0e}.status-critical{background-color:#fee2e2;color:#991b1b}.status-neutral{background-color:#e5e7eb;color:#374151}.filter-btn.active{background-color:#1f2937;color:#fff;font-weight:600}<\/style></head><body class="bg-stone-50 text-gray-800"><div class="container mx-auto p-4 sm:p-6 lg:p-8"><header class="mb-8"><h1 class="text-3xl font-bold text-gray-900">Painel de Auditoria de Estações de Trabalho</h1><p class="text-lg text-gray-600">Setor: ${reportSector} | Data da Verificação: ${reportDate}</p></header><section id="kpis" class="mb-8"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Total de Estações</h2><p class="text-3xl font-semibold text-gray-900">${totalStations}</p></div><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Estações com Ocorrências</h2><p class="text-3xl font-semibold text-red-600">${stationsWithOccurrences}</p></div><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Taxa de Falha (Desacoplador)</h2><p class="text-3xl font-semibold text-red-600">${decouplerFailureRate}%</p></div><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Scanners Ausentes</h2><p class="text-3xl font-semibold text-yellow-600">${scannerAbsentCount}</p></div></div></section><section id="summary-charts" class="mb-8 bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-xl font-bold text-gray-900 mb-6">Resumo Visual dos Equipamentos</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div><h3 class="text-lg font-semibold text-center text-gray-700 mb-2">Status dos Scanners</h3><div class="chart-container"><canvas id="scannerChart"></canvas></div></div><div><h3 class="text-lg font-semibold text-center text-gray-700 mb-2">Status dos Desacopladores</h3><div class="chart-container"><canvas id="decouplerChart"></canvas></div></div></div></section><section id="detailed-view"><div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes por Estação de Trabalho</h2><div id="filters" class="flex flex-wrap gap-2 mb-6"><button class="filter-btn active py-2 px-4 rounded-lg bg-gray-200" data-filter="all">Todos</button><button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="critical">Críticos</button><button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="attention">Com Atenção</button><button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="ok">Conformes</button></div><div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estação</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nº de Série</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Impressora</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Scanner</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Desacoplador</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Observação</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Geral</th></tr></thead><tbody id="station-table-body" class="bg-white divide-y"></tbody></table></div></div></section></div><script>const stationData=${stationsDataJson};document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementById("station-table-body"),e={ok:{class:"status-ok",icon:'<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'},attention:{class:"status-attention",icon:'<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'},critical:{class:"status-critical",icon:'<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>'},neutral:{class:"status-neutral",icon:""}};(()=>{t.innerHTML="",stationData.forEach(s=>{const a=document.createElement("tr");a.className="station-row bg-white hover:bg-gray-50",a.dataset.status=s.overall;const n=e[s.printer.status],o=e[s.scanner.status],r=e[s.decoupler.status],c=e[s.overall].class;let l=s.overall.charAt(0).toUpperCase()+s.overall.slice(1);"Ok"===l&&(l="Conforme"),a.innerHTML='<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">'+s.id+'</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">'+s.serial+'</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+n.class+'">'+n.icon+s.printer.text+'</span></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+o.class+'">'+o.icon+s.scanner.text+'</span></td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+r.class+'">'+r.icon+s.decoupler.text+'</span></td><td class="px-6 py-4 text-sm text-gray-600 break-words max-w-xs">'+s.obs+'</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><span class="status-badge '+c+'">'+l+'</span></td>',t.appendChild(a)})})();const s=document.getElementById("filters");s.addEventListener("click",t=>{if("BUTTON"!==t.target.tagName)return;const e=t.target.dataset.filter;s.querySelector(".active").classList.remove("active"),t.target.classList.add("active"),document.querySelectorAll(".station-row").forEach(t=>{""===(e==="all"||t.dataset.status===e?"":"none")?t.style.display="":t.style.display="none"})});const a={responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"bottom",labels:{padding:20,boxWidth:12,font:{size:14}}},tooltip:{bodyFont:{size:14},titleFont:{size:16}}},cutout:"60%"};new Chart(document.getElementById("scannerChart"),{type:"doughnut",data:{labels:["Conforme","Ausente","Fora do Padrão","Incompleto"],datasets:[{label:"Status dos Scanners",data:[${scannerCounts.ok},${scannerCounts.absent},${scannerCounts.nonStandard},${scannerCounts.incomplete}],backgroundColor:["#22c55e","#ef4444","#f97316","#eab308"],borderColor:"#fff",borderWidth:2}]},options:a}),new Chart(document.getElementById("decouplerChart"),{type:"doughnut",data:{labels:["Conforme","Com Erro","Inoperante"],datasets:[{label:"Status dos Desacopladores",data:[${decouplerCounts.ok},${decouplerCounts.error},${decouplerCounts.off}],backgroundColor:["#22c55e","#ef4444","#f59e0b"],borderColor:"#fff",borderWidth:2}]},options:a})});<\/script></body></html>`;
-  }
-
-  function downloadFile(content, fileName, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  }
+    function downloadFile(content, fileName, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+    
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
 </script>
 </body>
 </html>
