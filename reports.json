@@ -1,6 +1,10 @@
 [
   {
     "date": "06/06/2025",
-    "file": "seisdejunho.html"
+    "file": "seisdejunho.json"
+  },
+  {
+    "date": "13/06/2025",
+    "file": "trezedejunho.json"
   }
 ]
