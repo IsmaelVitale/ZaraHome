@@ -23,7 +23,7 @@ const msalConfig = {
 
 // Cria uma instância da aplicação cliente da MSAL.
 // Precisamos carregar a biblioteca da Microsoft antes de usar isso.
-let msalInstance;
+let msalInstance; 
 
 // ==================================================================
 // 2. LÓGICA DO "PORTEIRO"
@@ -46,6 +46,11 @@ function runAuthGuard() {
         // Usuário já está logado. Mostra o conteúdo da página.
         console.log("Usuário autenticado:", accounts[0].username);
         protectedContent.style.display = 'block';
+
+        // Dispara um evento personalizado para avisar a página que o conteúdo foi liberado.
+        // Isso é útil para que outros scripts (como o que carrega os relatórios) só rodem após o login.
+        const event = new CustomEvent('authReady');
+        document.dispatchEvent(event);
     }
 }
 
