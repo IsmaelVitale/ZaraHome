@@ -1,5 +1,6 @@
 // auth-guard.js - V5 com verificação de e-mail segura
 
+const NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY= "pk_live_Y2xlcmsucmVwb3J0c2luZGl0ZXguc2l0ZSQ";
 const CLERK_PUBLISHABLE_KEY = "sk_live_6NIZ5dGoGvCTHpldQcY6SZOLM5MNtBTtQLxm8KV6X0";
 
 // Aguarda o carregamento completo do DOM para garantir que todos os elementos HTML existam.
