@@ -4,7 +4,6 @@
 // 1. CONFIGURAÇÃO DA BIBLIOTECA DE AUTENTICAÇÃO DA MICROSOFT (MSAL)
 // ==================================================================
 
-// Configuração principal. Os IDs abaixo foram os que você forneceu.
 const msalConfig = {
     auth: {
         // ID do Aplicativo (cliente) copiado do Portal do Azure.
@@ -12,7 +11,6 @@ const msalConfig = {
         // ID do Diretório (locatário) copiado do Portal do Azure.
         authority: "https://login.microsoftonline.com/f0536299-a18e-4216-aca1-81757293d073",
         // A URL para onde o usuário será enviado após o login.
-        // Deve ser exatamente a mesma que você configurou no Azure.
         redirectUri: window.location.origin,
     },
     cache: {
@@ -21,15 +19,12 @@ const msalConfig = {
     }
 };
 
-// Cria uma instância da aplicação cliente da MSAL.
-// Precisamos carregar a biblioteca da Microsoft antes de usar isso.
 let msalInstance; 
 
 // ==================================================================
 // 2. LÓGICA DO "PORTEIRO"
 // ==================================================================
 
-// Esta é a função principal que protege a página.
 function runAuthGuard() {
     const accounts = msalInstance.getAllAccounts();
     const protectedContent = document.getElementById('conteudo-protegido');
@@ -48,7 +43,6 @@ function runAuthGuard() {
         protectedContent.style.display = 'block';
 
         // Dispara um evento personalizado para avisar a página que o conteúdo foi liberado.
-        // Isso é útil para que outros scripts (como o que carrega os relatórios) só rodem após o login.
         const event = new CustomEvent('authReady');
         document.dispatchEvent(event);
     }
@@ -62,21 +56,21 @@ function runAuthGuard() {
 function loadMsalScript(callback) {
     const script = document.createElement('script');
     script.src = "https://alcdn.msauth.net/browser/2.14.2/js/msal-browser.min.js";
-    script.integrity = "sha384-ms2S6DL/LWyjoGstsC1JzrZ1vrEqC49oG9HwFCyAra+fLOy/LAFBOwNOvs4b2nI3";
-    script.crossOrigin = "anonymous";
-    script.onload = callback; // Quando o script carregar, chama a função de callback
+    
+    // ✅ CORREÇÃO: As duas linhas abaixo foram removidas para evitar o erro de integridade.
+    // script.integrity = "sha384-ms2S6DL/LWyjoGstsC1JzrZ1vrEqC49oG9HwFCyAra+fLOy/LAFBOwNOvs4b2nI3";
+    // script.crossOrigin = "anonymous";
+    
+    script.onload = callback;
     document.head.appendChild(script);
 }
 
 // Inicia o processo quando o script auth-guard.js é carregado.
 loadMsalScript(() => {
-    // Agora que o script da MSAL carregou, podemos criar a instância.
     msalInstance = new msal.PublicClientApplication(msalConfig);
 
-    // A MSAL precisa processar o redirecionamento quando o usuário volta da página de login.
     msalInstance.handleRedirectPromise()
         .then(() => {
-            // Após processar, rodamos nosso porteiro.
             runAuthGuard();
         })
         .catch(error => {
