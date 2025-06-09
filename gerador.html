@@ -55,7 +55,7 @@
                 </div>
             </section>
             <section id="stations-container" class="mb-8">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes das Estações de Trabalho</h2>
+                 <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes das Estações de Trabalho</h2>
                 <div id="station-fields-wrapper"></div>
             </section>
             <div class="flex flex-col sm:flex-row justify-end gap-4">
@@ -76,7 +76,7 @@
     const initializeApp = () => {
         const GITHUB_USER = "IsmaelVitale";
         const GITHUB_REPO = "ZaraHome";
-
+        
         const form = document.getElementById('report-generator-form');
         const stationsContainer = document.getElementById('station-fields-wrapper');
         const messageContainer = document.getElementById('message-container');
@@ -140,7 +140,7 @@
                 stationData: collectedStationData
             };
         }
-
+        
         function dateToFileName(day, month) {
             const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];
             const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
@@ -186,7 +186,7 @@
                     report_data: JSON.stringify(reportData, null, 2)
                 }
             };
-
+            
             try {
                 const response = await fetch('/api/publish-report', {
                     method: 'POST',
@@ -216,14 +216,14 @@
         downloadOfflineBtn.addEventListener('click', function() {
             const reportData = getReportData();
             if (!reportData) return;
-
+            
             const [day, month] = reportData.reportInfo.date.split('/');
             const reportFileName = dateToFileName(parseInt(day), parseInt(month));
-            const offlineHtml = generateOfflineHtml(reportData);
+            const offlineHtml = generateOfflineHtml(reportData); // Esta função precisa de ser implementada
             downloadFile(offlineHtml, `relatorio_offline_${reportFileName}.html`, 'text/html');
         });
     };
-
+    
     document.addEventListener('authReady', initializeApp, { once: true });
 </script>
 </body>
