@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal de Relatórios</title>
-    <!-- O nosso porteiro atualizado será carregado aqui -->
+    <!-- Carrega o nosso porteiro e os controlos de utilizador -->
     <script src="auth-guard.js" defer></script>
+    <script src="user-controls.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style> 
@@ -33,7 +34,8 @@
     <!-- ESTADO 2: Menu Principal para Utilizadores Autenticados -->
     <div id="conteudo-protegido" class="w-full text-center" style="display: none;">
         
-<div id="user-controls-placeholder" class="absolute top-4 right-4"></div>
+        <!-- O nosso user-controls.js irá inserir os botões de perfil e sair aqui -->
+        <div id="user-controls-placeholder" class="absolute top-4 right-4"></div>
 
         <div class="max-w-md mx-auto">
              <div class="bg-white p-8 sm:p-12 rounded-xl shadow-lg">
@@ -48,5 +50,18 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Este script personaliza a mensagem de boas-vindas com o nome do utilizador.
+        document.addEventListener('authReady', () => {
+            const userNameSpan = document.getElementById('user-name');
+            if (window.Clerk && window.Clerk.user) {
+                const name = window.Clerk.user.username || window.Clerk.user.firstName;
+                if(name) {
+                    userNameSpan.textContent = `, ${name}`;
+                }
+            }
+        }, { once: true });
+    </script>
 </body>
 </html>
