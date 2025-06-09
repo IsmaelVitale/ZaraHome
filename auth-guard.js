@@ -1,6 +1,6 @@
 // auth-guard.js - Versão Final - Gere segurança e os botões de utilizador
 
-const CLERK_PUBLISHABLE_KEY = "pk_test_dm9jYWwtYmlzb24tODkuY2xlcmsuYWNjb3VudHMuZGV2JA";
+const CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsucmVwb3J0c2luZGl0ZXguc2l0ZSQ";
 
 // Função para criar os botões de perfil e sair
 const setupUserControls = (user) => {
