@@ -1,69 +1,46 @@
-# Nome do nosso fluxo de trabalho de automação
+# Ficheiro: .github/workflows/update_reports.yml
+
 name: Atualizar Relatórios JSON
 
-# Aciona a automação quando recebe um sinal do nosso site
 on:
   repository_dispatch:
     types: [add-new-report]
 
-# Define os trabalhos a serem executados
 jobs:
   update-files:
     runs-on: ubuntu-latest
     steps:
-      # 1. Faz o checkout do código do repositório
       - name: Checkout do repositório
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      # 2. Instala o 'jq', uma ferramenta robusta para manipular JSON
       - name: Instalar o jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      # 3. Cria o novo ficheiro de dados do relatório
       - name: Criar o ficheiro do novo relatório
         run: |
           echo '${{ github.event.client_payload.report_data }}' > ${{ github.event.client_payload.report_filename }}
         shell: bash
 
-      # 4. Lê o reports.json existente (ou cria um array vazio se não existir)
-      - name: Ler o reports.json existente
-        id: read_json
+      # ✅ LÓGICA CORRIGIDA E MAIS SEGURA
+      - name: Atualizar o reports.json
         run: |
-          if [ -f "reports.json" ]; then
-            content=$(cat reports.json)
-            # Garante que o conteúdo seja passado corretamente para os próximos passos
-            echo "content<<EOF" >> $GITHUB_OUTPUT
-            echo "$content" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "content=[]" >> $GITHUB_OUTPUT
-          fi
+          # Tenta ler o ficheiro existente. Se falhar (ex: ficheiro não existe ou está vazio), usa um array '[]' como base.
+          json_content=$(cat reports.json 2>/dev/null || echo "[]")
+
+          # Usa jq para adicionar o novo relatório, remover duplicados pela data, e ordenar
+          updated_json=$(echo "$json_content" | jq '[ .[] | select(.date != "${{ github.event.client_payload.report_date }}") ] + [{"date": "${{ github.event.client_payload.report_date }}", "file": "${{ github.event.client_payload.report_filename }}"}] | sort_by(.date | split("/") | .[2], .[1], .[0]) | reverse')
+          
+          # Escreve o conteúdo final e bem formatado de volta para o ficheiro
+          echo "$updated_json" > reports.json
         shell: bash
 
-      # 5. Adiciona a nova entrada e ordena a lista de relatórios por data
-      - name: Adicionar nova entrada e ordenar o JSON
-        id: update_json
-        run: |
-          # Adiciona o novo relatório ao conteúdo existente, remove duplicados pela data, e ordena
-          updated_content=$(echo '${{ steps.read_json.outputs.content }}' | jq '[ .[] | select(.date != "${{ github.event.client_payload.report_date }}") ] + [{"date": "${{ github.event.client_payload.report_date }}", "file": "${{ github.event.client_payload.report_filename }}"}] | sort_by(.date | split("/") | .[2], .[1], .[0]) | reverse')
-          echo "value=$updated_content" >> $GITHUB_OUTPUT
-        shell: bash
-
-      # 6. Salva o novo conteúdo combinado no ficheiro reports.json
-      - name: Escrever o reports.json atualizado
-        run: |
-          echo '${{ steps.update_json.outputs.value }}' > reports.json
-        shell: bash
-
-      # 7. Faz o commit de todos os ficheiros novos ou alterados
       - name: Fazer o commit dos novos ficheiros
         run: |
           git config --global user.name 'Relatorios-Action-Bot'
           git config --global user.email 'actions@github.com'
           git add .
-          # Verifica se há alterações para fazer commit antes de tentar
           if git diff --staged --quiet; then
             echo "Nenhuma alteração para fazer commit."
           else
