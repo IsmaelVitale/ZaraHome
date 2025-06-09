@@ -75,9 +75,9 @@
 <script>
     const initializeApp = () => {
         // --- CONSTANTES E VARIÁVEIS ---
-        const GITHUB_USER = "IsmaelVitale";                 // ⚠️ SUBSTITUA PELO SEU NOME DE UTILIZADOR
-        const GITHUB_REPO = "ZaraHome";                   // ⚠️ SUBSTITUA PELO NOME DO SEU REPOSITÓRIO
-        const PAT_TOKEN = "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"; // ⚠️ SUBSTITUA PELO SEU NOVO PAT e lembre-se do risco
+        const GITHUB_USER = "IsmaelVitale";                 
+        const GITHUB_REPO = "ZaraHome";                   
+        const PAT_TOKEN = "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"; // ⚠️ SUBSTITUA POR UM NOVO TOKEN COM PERMISSÃO 'repo'
 
         const form = document.getElementById('report-generator-form');
         const stationsContainer = document.getElementById('station-fields-wrapper');
@@ -146,10 +146,12 @@
             };
         }
         
-        function dateToFileName(date) {
+        // ✅ CORREÇÃO: A função agora recebe os números do dia e mês diretamente para evitar erros de fuso horário.
+        function dateToFileName(day, month) {
             const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];
             const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-            return `${dias[date.getDate()]}de${meses[date.getMonth()]}`;
+            // Usa o mês - 1 porque o array 'meses' é 0-indexado (Janeiro = 0).
+            return `${dias[day]}de${meses[month - 1]}`;
         }
 
         function downloadFile(content, fileName, mimeType) {
@@ -179,8 +181,9 @@
             messageContainer.textContent = 'A enviar dados para o GitHub... Por favor, aguarde.';
             messageContainer.className = 'mb-4 text-center font-semibold text-blue-600';
 
-            const dateForFilename = new Date(reportData.reportInfo.date.split('/').reverse().join('-'));
-            const reportFileName = `${dateToFileName(dateForFilename)}.json`;
+            // ✅ CORREÇÃO: Extrai o dia e mês da data para passar para a função de nome de ficheiro.
+            const [day, month, year] = reportData.reportInfo.date.split('/');
+            const reportFileName = `${dateToFileName(parseInt(day), parseInt(month))}.json`;
 
             const dispatchPayload = {
                 event_type: 'add-new-report',
@@ -222,8 +225,10 @@
             const reportData = getReportData();
             if (!reportData) return;
             
+             // ✅ CORREÇÃO: Usa a mesma lógica para obter o nome do ficheiro offline.
+            const [day, month, year] = reportData.reportInfo.date.split('/');
+            const reportFileName = dateToFileName(parseInt(day), parseInt(month));
             const offlineHtml = generateOfflineHtml(reportData);
-            const reportFileName = dateToFileName(new Date(reportData.reportInfo.date.split('/').reverse().join('-')));
             downloadFile(offlineHtml, `relatorio_offline_${reportFileName}.html`, 'text/html');
         });
     };
