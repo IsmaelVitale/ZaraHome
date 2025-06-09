@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Auditoria</title>
+    <title>Painel de Auditoria - Zara Home</title>
+    <!-- 1. O nosso porteiro para proteger a página -->
     <script src="auth-guard.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style> 
+    <style>
         body { font-family: 'Inter', sans-serif; }
         .chart-container { position: relative; width: 100%; max-width: 320px; margin: auto; height: 320px; }
         .status-badge { display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
@@ -21,32 +22,34 @@
 </head>
 <body class="bg-stone-50 text-gray-800">
 
-<div id="conteudo-protegido" style="display: none;">
-    <!-- ✅ CORREÇÃO: A classe 'relative' foi aplicada ao container principal, que agora envolve todo o conteúdo. -->
-    <div class="container mx-auto p-6 sm:p-8 lg:p-12 relative">
-        
-        <!-- O placeholder dos botões agora está dentro do container, posicionado em relação a ele. -->
-        <div id="user-controls-placeholder" class="absolute top-4 right-4 flex items-center"></div>
+<div id="conteudo-protegido" class="relative" style="display: none;">
+    <!-- Botões de controlo do utilizador -->
+    <!-- Este é o local correto para os botões -->
+<div id="user-controls-placeholder" class="absolute top-4 right-4 flex items-center"></div>
 
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <div class="mb-6">
-            <a href="reportszh.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <a href="reportszh.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Voltar para a Lista de Relatórios
             </a>
         </div>
-        
+
+        <!-- Cabeçalho (será preenchido pelo JavaScript) -->
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Painel de Auditoria de Estações de Trabalho</h1>
-            <p id="report-info" class="text-lg text-gray-600">Carregando dados do relatório...</p>
+            <p id="report-info" class="text-lg text-gray-600">A carregar dados do relatório...</p>
         </header>
 
+        <!-- KPIs (serão preenchidos pelo JavaScript) -->
         <section id="kpis" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Total de Estações</h2><p id="kpi-total" class="text-3xl font-semibold text-gray-900">-</p></div>
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Estações com Ocorrências</h2><p id="kpi-occurrences" class="text-3xl font-semibold text-red-600">-</p></div>
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Taxa de Falha (Desacoplador)</h2><p id="kpi-failure-rate" class="text-3xl font-semibold text-red-600">-</p></div>
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Scanners Ausentes</h2><p id="kpi-scanners-absent" class="text-3xl font-semibold text-yellow-600">-</p></div>
         </section>
-        
+
+        <!-- Gráficos (serão preenchidos pelo JavaScript) -->
         <section class="mb-8 bg-white p-6 rounded-lg shadow-sm border">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Resumo Visual dos Equipamentos</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -55,6 +58,7 @@
             </div>
         </section>
 
+        <!-- Tabela Detalhada (será preenchida pelo JavaScript) -->
         <section><div class="bg-white p-6 rounded-lg shadow-sm border">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes por Estação de Trabalho</h2>
             <div id="filters" class="flex flex-wrap gap-2 mb-6">
@@ -78,12 +82,14 @@
                 </table>
             </div>
         </div></section>
-
     </div>
 </div>
 
 <script>
+    // 2. Este script só vai rodar DEPOIS que o auth-guard.js confirmar o login.
     document.addEventListener('authReady', () => {
+
+        // Pega o identificador do relatório a partir do URL (ex: ?data=quinzedejunho)
         const urlParams = new URLSearchParams(window.location.search);
         const reportId = urlParams.get('data');
 
@@ -92,6 +98,7 @@
             return;
         }
 
+        // Constrói o nome do ficheiro JSON e vai buscá-lo
         fetch(`${reportId}.json`)
             .then(response => {
                 if (!response.ok) {
@@ -100,6 +107,7 @@
                 return response.json();
             })
             .then(data => {
+                // Se os dados foram encontrados, preenche a página
                 populatePage(data);
             })
             .catch(error => {
@@ -108,38 +116,66 @@
             });
     });
 
+    /**
+     * Função principal para preencher a página com os dados do JSON.
+     * @param {object} reportData - O objeto completo com os dados do relatório.
+     */
     function populatePage(reportData) {
         const { reportInfo, kpis, stationData } = reportData;
+
+        // Preenche o cabeçalho e os KPIs
         document.title = `Painel de Auditoria - ${reportInfo.sector}`;
         document.getElementById('report-info').textContent = `Setor: ${reportInfo.sector} | Data da Verificação: ${reportInfo.date}`;
         document.getElementById('kpi-total').textContent = kpis.totalStations;
         document.getElementById('kpi-occurrences').textContent = kpis.stationsWithOccurrences;
         document.getElementById('kpi-failure-rate').textContent = `${kpis.decouplerFailureRate}%`;
         document.getElementById('kpi-scanners-absent').textContent = kpis.scannerAbsentCount;
+
+        // Preenche a tabela
         renderStationTable(stationData);
         setupFilters();
+
+        // Renderiza os gráficos
         renderCharts(stationData);
     }
 
+    /**
+     * Renderiza a tabela de estações.
+     * @param {Array<object>} stationData - Array com os dados das estações.
+     */
     function renderStationTable(stationData) {
         const tableBody = document.getElementById('station-table-body');
-        tableBody.innerHTML = ''; 
+        tableBody.innerHTML = ''; // Limpa a tabela
         const statusMap = {
             ok: { class: 'status-ok', icon: '<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' },
             attention: { class: 'status-attention', icon: '<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' },
             critical: { class: 'status-critical', icon: '<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' },
             neutral: { class: 'status-neutral', icon: '' }
         };
+
         stationData.forEach(station => {
             const row = document.createElement('tr');
             row.className = 'station-row bg-white hover:bg-gray-50';
             row.dataset.status = station.overall;
+
             const overallText = station.overall === 'ok' ? 'Conforme' : station.overall.charAt(0).toUpperCase() + station.overall.slice(1);
-            row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${station.id}</td><td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${station.serial}</td><td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.printer.status].class}">${statusMap[station.printer.status].icon}${station.printer.text}</span></td><td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.scanner.status].class}">${statusMap[station.scanner.status].icon}${station.scanner.text}</span></td><td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.decoupler.status].class}">${statusMap[station.decoupler.status].icon}${station.decoupler.text}</span></td><td class="px-6 py-4 text-sm text-gray-600 break-words max-w-xs">${station.obs}</td><td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.overall].class}">${overallText}</span></td>`;
+
+            row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${station.id}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${station.serial}</td>
+            <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.printer.status].class}">${statusMap[station.printer.status].icon}${station.printer.text}</span></td>
+            <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.scanner.status].class}">${statusMap[station.scanner.status].icon}${station.scanner.text}</span></td>
+            <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.decoupler.status].class}">${statusMap[station.decoupler.status].icon}${station.decoupler.text}</span></td>
+            <td class="px-6 py-4 text-sm text-gray-600 break-words max-w-xs">${station.obs}</td>
+            <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge ${statusMap[station.overall].class}">${overallText}</span></td>
+        `;
             tableBody.appendChild(row);
         });
     }
 
+    /**
+     * Configura os botões de filtro da tabela.
+     */
     function setupFilters() {
         const filters = document.getElementById('filters');
         filters.addEventListener('click', (e) => {
@@ -153,10 +189,15 @@
         });
     }
 
+    /**
+     * Renderiza os gráficos de status.
+     * @param {Array<object>} stationData - Array com os dados das estações.
+     */
     function renderCharts(stationData) {
         const scannerCounts = stationData.reduce((acc, s) => { (s.scanner.text.includes('Okay')) ? acc.ok++ : (s.scanner.text.includes('Ausente')) ? acc.absent++ : (s.scanner.text.includes('Padrão')) ? acc.nonStandard++ : (s.scanner.text.includes('base')) && acc.incomplete++; return acc; }, { ok: 0, absent: 0, nonStandard: 0, incomplete: 0 });
         const decouplerCounts = stationData.reduce((acc, s) => { (s.decoupler.text.includes('verde')) ? acc.ok++ : (s.decoupler.text.includes('vermelha')) ? acc.error++ : (s.decoupler.text.includes('apagada')) && acc.off++; return acc; }, { ok: 0, error: 0, off: 0 });
         const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 20, boxWidth: 12, font: { size: 14 }}}, tooltip: { bodyFont: { size: 14 }, titleFont: { size: 16 }}}, cutout: '60%' };
+
         new Chart(document.getElementById('scannerChart'), { type: 'doughnut', data: { labels: ['Conforme', 'Ausente', 'Fora do Padrão', 'Incompleto'], datasets: [{ data: [scannerCounts.ok, scannerCounts.absent, scannerCounts.nonStandard, scannerCounts.incomplete], backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#eab308'], borderWidth: 2 }] }, options: chartOptions });
         new Chart(document.getElementById('decouplerChart'), { type: 'doughnut', data: { labels: ['Conforme', 'Com Erro', 'Inoperante'], datasets: [{ data: [decouplerCounts.ok, decouplerCounts.error, decouplerCounts.off], backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'], borderWidth: 2 }] }, options: chartOptions });
     }
