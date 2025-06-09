@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Auditoria - Zara Home</title>
+    <!-- 1. O nosso porteiro para proteger a página -->
     <script src="auth-guard.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,26 +22,26 @@
 </head>
 <body class="bg-stone-50 text-gray-800">
 
-<div id="conteudo-protegido" style="display: none;">
-    
+<div id="conteudo-protegido" class="relative" style="display: none;">
+    <!-- Botões de controlo do utilizador -->
+    <!-- Este é o local correto para os botões -->
+<div id="user-controls-placeholder" class="absolute top-4 right-4 flex items-center"></div>
+
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-            <a href="reportszh.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 mb-4 sm:mb-0">
+        <div class="mb-6">
+            <a href="reportszh.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Voltar para a Lista de Relatórios
             </a>
-            <div class="flex items-center space-x-2 justify-end">
-                <span class="text-gray-700 text-sm hidden sm:block">Olá, Ismael</span>
-                <button class="bg-white text-blue-600 border border-blue-600 rounded-md px-3 py-1 text-sm hover:bg-blue-500 hover:text-white transition-colors duration-200">Meu Perfil</button>
-                <button class="bg-red-600 text-white rounded-md px-3 py-1 text-sm hover:bg-red-700 transition-colors duration-200">Sair</button>
-            </div>
         </div>
 
+        <!-- Cabeçalho (será preenchido pelo JavaScript) -->
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Painel de Auditoria de Estações de Trabalho</h1>
             <p id="report-info" class="text-lg text-gray-600">A carregar dados do relatório...</p>
         </header>
 
+        <!-- KPIs (serão preenchidos pelo JavaScript) -->
         <section id="kpis" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Total de Estações</h2><p id="kpi-total" class="text-3xl font-semibold text-gray-900">-</p></div>
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Estações com Ocorrências</h2><p id="kpi-occurrences" class="text-3xl font-semibold text-red-600">-</p></div>
@@ -48,6 +49,7 @@
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Scanners Ausentes</h2><p id="kpi-scanners-absent" class="text-3xl font-semibold text-yellow-600">-</p></div>
         </section>
 
+        <!-- Gráficos (serão preenchidos pelo JavaScript) -->
         <section class="mb-8 bg-white p-6 rounded-lg shadow-sm border">
             <h2 class="text-xl font-bold text-gray-900 mb-6">Resumo Visual dos Equipamentos</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -56,39 +58,37 @@
             </div>
         </section>
 
-        <section>
-            <div class="bg-white p-6 rounded-lg shadow-sm border">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes por Estação de Trabalho</h2>
-                <div id="filters" class="flex flex-wrap gap-2 mb-6">
-                    <button class="filter-btn active py-2 px-4 rounded-lg bg-gray-200" data-filter="all">Todos</button>
-                    <button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="critical">Críticos</button>
-                    <button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="attention">Com Atenção</button>
-                    <button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="ok">Conformes</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estação</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nº de Série</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Impressora</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Scanner</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Desacoplador</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Observação</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Geral</th>
-                            </tr>
-                        </thead>
-                        <tbody id="station-table-body" class="bg-white divide-y"></tbody>
-                    </table>
-                </div>
+        <!-- Tabela Detalhada (será preenchida pelo JavaScript) -->
+        <section><div class="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes por Estação de Trabalho</h2>
+            <div id="filters" class="flex flex-wrap gap-2 mb-6">
+                <button class="filter-btn active py-2 px-4 rounded-lg bg-gray-200" data-filter="all">Todos</button>
+                <button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="critical">Críticos</button>
+                <button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="attention">Com Atenção</button>
+                <button class="filter-btn py-2 px-4 rounded-lg bg-gray-200" data-filter="ok">Conformes</button>
             </div>
-        </section>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50"><tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estação</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nº de Série</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Impressora</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Scanner</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Desacoplador</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Observação</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status Geral</th>
+                    </tr></thead>
+                    <tbody id="station-table-body" class="bg-white divide-y"></tbody>
+                </table>
+            </div>
+        </div></section>
     </div>
 </div>
 
 <script>
     // 2. Este script só vai rodar DEPOIS que o auth-guard.js confirmar o login.
     document.addEventListener('authReady', () => {
+
         // Pega o identificador do relatório a partir do URL (ex: ?data=quinzedejunho)
         const urlParams = new URLSearchParams(window.location.search);
         const reportId = urlParams.get('data');
@@ -115,10 +115,6 @@
                 document.getElementById('report-info').textContent = `Erro ao carregar dados. Verifique se o ficheiro ${reportId}.json existe.`;
             });
     });
-
-    // Variáveis globais para armazenar as instâncias dos gráficos
-    let scannerChartInstance = null;
-    let decouplerChartInstance = null;
 
     /**
      * Função principal para preencher a página com os dados do JSON.
@@ -198,77 +194,13 @@
      * @param {Array<object>} stationData - Array com os dados das estações.
      */
     function renderCharts(stationData) {
-        // Destrói instâncias de gráficos existentes antes de criar novas
-        if (scannerChartInstance) {
-            scannerChartInstance.destroy();
-        }
-        if (decouplerChartInstance) {
-            decouplerChartInstance.destroy();
-        }
+        const scannerCounts = stationData.reduce((acc, s) => { (s.scanner.text.includes('Okay')) ? acc.ok++ : (s.scanner.text.includes('Ausente')) ? acc.absent++ : (s.scanner.text.includes('Padrão')) ? acc.nonStandard++ : (s.scanner.text.includes('base')) && acc.incomplete++; return acc; }, { ok: 0, absent: 0, nonStandard: 0, incomplete: 0 });
+        const decouplerCounts = stationData.reduce((acc, s) => { (s.decoupler.text.includes('verde')) ? acc.ok++ : (s.decoupler.text.includes('vermelha')) ? acc.error++ : (s.decoupler.text.includes('apagada')) && acc.off++; return acc; }, { ok: 0, error: 0, off: 0 });
+        const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { padding: 20, boxWidth: 12, font: { size: 14 }}}, tooltip: { bodyFont: { size: 14 }, titleFont: { size: 16 }}}, cutout: '60%' };
 
-        const scannerCounts = stationData.reduce((acc, s) => {
-            (s.scanner.text.includes('Okay')) ? acc.ok++ :
-            (s.scanner.text.includes('Ausente')) ? acc.absent++ :
-            (s.scanner.text.includes('Padrão')) ? acc.nonStandard++ :
-            (s.scanner.text.includes('base')) && acc.incomplete++;
-            return acc;
-        }, { ok: 0, absent: 0, nonStandard: 0, incomplete: 0 });
-
-        const decouplerCounts = stationData.reduce((acc, s) => {
-            (s.decoupler.text.includes('verde')) ? acc.ok++ :
-            (s.decoupler.text.includes('vermelha')) ? acc.error++ :
-            (s.decoupler.text.includes('apagada')) && acc.off++;
-            return acc;
-        }, { ok: 0, error: 0, off: 0 });
-
-        const chartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        boxWidth: 12,
-                        font: { size: 14 }
-                    }
-                },
-                tooltip: {
-                    bodyFont: { size: 14 },
-                    titleFont: { size: 16 }
-                }
-            },
-            cutout: '60%'
-        };
-
-        // Cria e armazena as novas instâncias dos gráficos
-        scannerChartInstance = new Chart(document.getElementById('scannerChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Conforme', 'Ausente', 'Fora do Padrão', 'Incompleto'],
-                datasets: [{
-                    data: [scannerCounts.ok, scannerCounts.absent, scannerCounts.nonStandard, scannerCounts.incomplete],
-                    backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#eab308'],
-                    borderWidth: 2
-                }]
-            },
-            options: chartOptions
-        });
-
-        decouplerChartInstance = new Chart(document.getElementById('decouplerChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Conforme', 'Com Erro', 'Inoperante'],
-                datasets: [{
-                    data: [decouplerCounts.ok, decouplerCounts.error, decouplerCounts.off],
-                    backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
-                    borderWidth: 2
-                }]
-            },
-            options: chartOptions
-        });
+        new Chart(document.getElementById('scannerChart'), { type: 'doughnut', data: { labels: ['Conforme', 'Ausente', 'Fora do Padrão', 'Incompleto'], datasets: [{ data: [scannerCounts.ok, scannerCounts.absent, scannerCounts.nonStandard, scannerCounts.incomplete], backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#eab308'], borderWidth: 2 }] }, options: chartOptions });
+        new Chart(document.getElementById('decouplerChart'), { type: 'doughnut', data: { labels: ['Conforme', 'Com Erro', 'Inoperante'], datasets: [{ data: [decouplerCounts.ok, decouplerCounts.error, decouplerCounts.off], backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'], borderWidth: 2 }] }, options: chartOptions });
     }
 </script>
-
 </body>
 </html>
