@@ -23,17 +23,15 @@
 <body class="bg-stone-50 text-gray-800">
 
 <div id="conteudo-protegido" style="display: none;">
+    <!-- Este é o local correto para os botões -->
+<div id="user-controls-placeholder" class="absolute top-4 right-4 flex items-center"></div>
+
     <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
-        <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-            <a href="reportszh.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium mb-4 sm:mb-0">
+        <div class="mb-6">
+            <a href="reportszh.html" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Voltar para a Lista de Relatórios
             </a>
-            <div class="flex items-center space-x-2 justify-end">
-                <span class="text-gray-700 text-sm hidden sm:block">Olá, Ismael</span>
-                <button class="bg-white text-blue-600 border border-blue-600 rounded-md px-3 py-1 text-sm hover:bg-blue-500 hover:text-white transition-colors duration-200">Meu Perfil</button>
-                <button class="bg-red-600 text-white rounded-md px-3 py-1 text-sm hover:bg-red-700 transition-colors duration-200">Sair</button>
-            </div>
         </div>
         <header class="mb-8 text-center">
             <h1 class="text-3xl font-bold text-gray-900 mb-2">Gerador de Relatórios de Auditoria</h1>
@@ -71,6 +69,7 @@
         </form>
     </div>
 </div>
+
 <script>
     const initializeApp = () => {
         const GITHUB_USER = "IsmaelVitale";
@@ -94,6 +93,7 @@
             { id: 'TGT0010', serial: 'CZC4197BVN' }, { id: 'TGT0011', serial: 'CZC4197BVP' },
             { id: 'TGT0012', serial: 'CZC4257GBN' }, { id: 'TGT0013', serial: 'CZC4257GBP' }
         ];
+
         function renderStationFields() {
             stationsContainer.innerHTML = '';
             fixedStationData.forEach(stationData => {
@@ -101,17 +101,128 @@
                 stationDiv.className = 'station-section';
                 let optionsHtml = (type) => Object.keys(statusMapping[type]).map(option => `<option value="${option}">${option}</option>`).join('');
                 stationDiv.innerHTML = `<div class="flex justify-between items-center mb-4"><h3 class="text-lg font-semibold text-gray-800">Estação ${stationData.id}</h3></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">ID da Estação:</label><input type="text" name="stationId" class="form-input bg-gray-100 cursor-not-allowed" value="${stationData.id}" readonly></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Nº de Série (TGT):</label><input type="text" name="serial" class="form-input" value="${stationData.serial}"></div></div><div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">Status Impressora:</label><select name="printerStatus" class="form-input" required><option value="" disabled selected>Selecione</option>${optionsHtml('printer')}</select></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Status Scanner:</label><select name="scannerStatus" class="form-input" required><option value="" disabled selected>Selecione</option>${optionsHtml('scanner')}</select></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Status Desacoplador:</label><select name="decouplerStatus" class="form-input" required><option value="" disabled selected>Selecione</option>${optionsHtml('decoupler')}</select></div></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Observações:</label><textarea name="observations" rows="2" class="form-input" placeholder="Nenhuma observação..."></textarea></div>`;
-                stationsContainer.appendChild(stationDiv);            });        }
-        function getReportData() {            const reportDateInput = document.getElementById('report-date').value;            if (!reportDateInput) {                messageContainer.textContent = 'ERRO: Por favor, selecione a data do relatório.';                return null;            }            messageContainer.textContent = '';            const reportSectorInput = document.getElementById('report-sector').value;            const [year, month, day] = reportDateInput.split('-');            const formattedDate = `${day}/${month}/${year}`;            const collectedStationData = Array.from(document.querySelectorAll('.station-section')).map(section => {                const printerText = section.querySelector('select[name="printerStatus"]').value || 'Não preenchido';                const scannerText = section.querySelector('select[name="scannerStatus"]').value || 'Não preenchido';                const decouplerText = section.querySelector('select[name="decouplerStatus"]').value || 'Não preenchido';                const printerStatusKey = statusMapping.printer[printerText] || 'neutral';                const scannerStatusKey = statusMapping.scanner[scannerText] || 'neutral';                const decouplerStatusKey = statusMapping.decoupler[decouplerText] || 'neutral';                let overallStatus = 'ok';                if (printerStatusKey === 'critical' || scannerStatusKey === 'critical' || decouplerStatusKey === 'critical') overallStatus = 'critical';                else if (printerStatusKey === 'attention' || scannerStatusKey === 'attention' || decouplerStatusKey === 'attention') overallStatus = 'attention';                return { id: section.querySelector('input[name="stationId"]').value, serial: section.querySelector('input[name="serial"]').value, printer: { status: printerStatusKey, text: printerText }, scanner: { status: scannerStatusKey, text: scannerText }, decoupler: { status: decouplerStatusKey, text: decouplerText }, obs: section.querySelector('textarea[name="observations"]').value, overall: overallStatus };            });            const totalStations = collectedStationData.length;            const stationsWithOccurrences = collectedStationData.filter(s => s.overall !== 'ok').length;            const decouplerErrorCount = collectedStationData.filter(s => s.decoupler.status !== 'ok').length;            const scannerAbsentCount = collectedStationData.filter(s => s.scanner.text.includes('Ausente')).length;            const decouplerFailureRate = totalStations > 0 ? ((decouplerErrorCount / totalStations) * 100).toFixed(0) : 0;            return {                reportInfo: { date: formattedDate, sector: reportSectorInput },                kpis: { totalStations, stationsWithOccurrences, decouplerFailureRate, scannerAbsentCount },
-                stationData: collectedStationData            };        }                function dateToFileName(day, month) {            const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];            const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];            return `${dias[day]}de${meses[month - 1]}`;        }
-        function downloadFile(content, fileName, mimeType) {            const blob = new Blob([content], { type: mimeType });            const url = URL.createObjectURL(blob);            const a = document.createElement('a');            a.href = url;            a.download = fileName;            document.body.appendChild(a);            a.click();            window.URL.revokeObjectURL(url);            document.body.removeChild(a);        }
+                stationsContainer.appendChild(stationDiv);
+            });
+        }
+
+        function getReportData() {
+            const reportDateInput = document.getElementById('report-date').value;
+            if (!reportDateInput) {
+                messageContainer.textContent = 'ERRO: Por favor, selecione a data do relatório.';
+                return null;
+            }
+            messageContainer.textContent = '';
+            const reportSectorInput = document.getElementById('report-sector').value;
+            const [year, month, day] = reportDateInput.split('-');
+            const formattedDate = `${day}/${month}/${year}`;
+            const collectedStationData = Array.from(document.querySelectorAll('.station-section')).map(section => {
+                const printerText = section.querySelector('select[name="printerStatus"]').value || 'Não preenchido';
+                const scannerText = section.querySelector('select[name="scannerStatus"]').value || 'Não preenchido';
+                const decouplerText = section.querySelector('select[name="decouplerStatus"]').value || 'Não preenchido';
+                const printerStatusKey = statusMapping.printer[printerText] || 'neutral';
+                const scannerStatusKey = statusMapping.scanner[scannerText] || 'neutral';
+                const decouplerStatusKey = statusMapping.decoupler[decouplerText] || 'neutral';
+                let overallStatus = 'ok';
+                if (printerStatusKey === 'critical' || scannerStatusKey === 'critical' || decouplerStatusKey === 'critical') overallStatus = 'critical';
+                else if (printerStatusKey === 'attention' || scannerStatusKey === 'attention' || decouplerStatusKey === 'attention') overallStatus = 'attention';
+                return { id: section.querySelector('input[name="stationId"]').value, serial: section.querySelector('input[name="serial"]').value, printer: { status: printerStatusKey, text: printerText }, scanner: { status: scannerStatusKey, text: scannerText }, decoupler: { status: decouplerStatusKey, text: decouplerText }, obs: section.querySelector('textarea[name="observations"]').value, overall: overallStatus };
+            });
+            const totalStations = collectedStationData.length;
+            const stationsWithOccurrences = collectedStationData.filter(s => s.overall !== 'ok').length;
+            const decouplerErrorCount = collectedStationData.filter(s => s.decoupler.status !== 'ok').length;
+            const scannerAbsentCount = collectedStationData.filter(s => s.scanner.text.includes('Ausente')).length;
+            const decouplerFailureRate = totalStations > 0 ? ((decouplerErrorCount / totalStations) * 100).toFixed(0) : 0;
+            return {
+                reportInfo: { date: formattedDate, sector: reportSectorInput },
+                kpis: { totalStations, stationsWithOccurrences, decouplerFailureRate, scannerAbsentCount },
+                stationData: collectedStationData
+            };
+        }
+        
+        function dateToFileName(day, month) {
+            const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];
+            const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+            return `${dias[day]}de${meses[month - 1]}`;
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
         function generateOfflineHtml(reportData) { /* ... (a sua lógica para gerar o HTML offline) ... */ }
+
         renderStationFields();
-        form.addEventListener('submit', async function(e) {            e.preventDefault();            const reportData = getReportData();            if (!reportData) return;
-            publishBtn.disabled = true;            publishBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Publicando...`;            messageContainer.textContent = 'A contactar o servidor seguro...';            messageContainer.className = 'mb-4 text-center font-semibold text-blue-600';
-            const [day, month] = reportData.reportInfo.date.split('/');            const reportFileName = `${dateToFileName(parseInt(day), parseInt(month))}.json`;
-            const payload = {                GITHUB_USER: GITHUB_USER,                GITHUB_REPO: GITHUB_REPO,                event_type: 'add-new-report',                client_payload: {                    report_date: reportData.reportInfo.date,                    report_filename: reportFileName,                    report_data: JSON.stringify(reportData, null, 2)                }            };                        try {                const response = await fetch('/api/publish-report', {                    method: 'POST',                    headers: { 'Content-Type': 'application/json' },                    body: JSON.stringify(payload)                });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const reportData = getReportData();
+            if (!reportData) return;
+
+            publishBtn.disabled = true;
+            publishBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Publicando...`;
+            messageContainer.textContent = 'A contactar o servidor seguro...';
+            messageContainer.className = 'mb-4 text-center font-semibold text-blue-600';
+
+            const [day, month] = reportData.reportInfo.date.split('/');
+            const reportFileName = `${dateToFileName(parseInt(day), parseInt(month))}.json`;
+
+            const payload = {
+                GITHUB_USER: GITHUB_USER,
+                GITHUB_REPO: GITHUB_REPO,
+                event_type: 'add-new-report',
+                client_payload: {
+                    report_date: reportData.reportInfo.date,
+                    report_filename: reportFileName,
+                    report_data: JSON.stringify(reportData, null, 2)
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/publish-report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
                 const result = await response.json();
-                if (response.ok) {                    messageContainer.textContent = 'Publicação iniciada com sucesso! Aguarde 1-2 minutos para o site atualizar.';                    messageContainer.className = 'mb-4 text-center font-semibold text-green-600';                } else {                    throw new Error(result.message || 'Ocorreu um erro desconhecido no servidor.');                }
-            } catch (error) {                console.error('Erro ao comunicar com o despachante:', error);                messageContainer.textContent = `Falha na publicação: ${error.message}`;                messageContainer.className = 'mb-4 text-center font-semibold text-red-600';            } finally {                publishBtn.disabled = false;                publishBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-4 4H4M7 16l-4 4m4-4l4-4m-4 4v-7m0 0l4-4m-4 4H3m4 0h7m0 0l4 4m-4-4l-4 4m4-4V3m0 0l4 4m-4-4l-4 4"></path></svg>Publicar Relatório no Site';            }        });
-        downloadOfflineBtn.addEventListener('click', function() {            const reportData = getReportData();            if (!reportData) return;                        const [day, month] = reportData.reportInfo.date.split('/');            const reportFileName = dateToFileName(parseInt(day), parseInt(month));            const offlineHtml = generateOfflineHtml(reportData); // Esta função precisa de ser implementada            downloadFile(offlineHtml, `relatorio_offline_${reportFileName}.html`, 'text/html');        });    };        document.addEventListener('authReady', initializeApp, { once: true });</script></body></html>
+
+                if (response.ok) {
+                    messageContainer.textContent = 'Publicação iniciada com sucesso! Aguarde 1-2 minutos para o site atualizar.';
+                    messageContainer.className = 'mb-4 text-center font-semibold text-green-600';
+                } else {
+                    throw new Error(result.message || 'Ocorreu um erro desconhecido no servidor.');
+                }
+
+            } catch (error) {
+                console.error('Erro ao comunicar com o despachante:', error);
+                messageContainer.textContent = `Falha na publicação: ${error.message}`;
+                messageContainer.className = 'mb-4 text-center font-semibold text-red-600';
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-4 4H4M7 16l-4 4m4-4l4-4m-4 4v-7m0 0l4-4m-4 4H3m4 0h7m0 0l4 4m-4-4l-4 4m4-4V3m0 0l4 4m-4-4l-4 4"></path></svg>Publicar Relatório no Site';
+            }
+        });
+
+        downloadOfflineBtn.addEventListener('click', function() {
+            const reportData = getReportData();
+            if (!reportData) return;
+            
+            const [day, month] = reportData.reportInfo.date.split('/');
+            const reportFileName = dateToFileName(parseInt(day), parseInt(month));
+            const offlineHtml = generateOfflineHtml(reportData); // Esta função precisa de ser implementada
+            downloadFile(offlineHtml, `relatorio_offline_${reportFileName}.html`, 'text/html');
+        });
+    };
+    
+    document.addEventListener('authReady', initializeApp, { once: true });
+</script>
+</body>
+</html>
