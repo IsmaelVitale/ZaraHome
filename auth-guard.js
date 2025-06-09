@@ -1,15 +1,15 @@
-// auth-guard.js - V9 - Lógica de UI e segurança combinadas
+// auth-guard.js - Versão Final - Gere segurança e os botões de utilizador
 
 const CLERK_PUBLISHABLE_KEY = "pk_test_dm9jYWwtYmlzb24tODkuY2xlcmsuYWNjb3VudHMuZGV2JA";
 
+// Função para criar os botões de perfil e sair
 const setupUserControls = (user) => {
     const placeholder = document.getElementById('user-controls-placeholder');
     if (!placeholder) return;
 
     const userIdentifier = user.username || user.firstName || 'Utilizador';
 
-    // Estrutura HTML dos botões de controlo
-    const buttonsHTML = `
+    placeholder.innerHTML = `
         <span class="text-gray-600 font-medium mr-4 hidden sm:inline">Olá, ${userIdentifier}</span>
         <button id="user-profile-button" class="bg-white text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors">
           Meu Perfil
@@ -18,13 +18,13 @@ const setupUserControls = (user) => {
           Sair
         </button>
     `;
-    placeholder.innerHTML = buttonsHTML;
 
-    // Adiciona a funcionalidade (os cliques) aos botões
     document.getElementById('user-profile-button').onclick = () => window.Clerk.openUserProfile();
     document.getElementById('sign-out-button').onclick = () => window.Clerk.signOut({ redirectUrl: '/' });
+    placeholder.style.display = 'flex'; // Garante que os botões fiquem visíveis
 };
 
+// Função para mostrar a tela de boas-vindas na página principal
 const showWelcomeScreen = () => {
     const welcomeScreen = document.getElementById('welcome-screen');
     const protectedContent = document.getElementById('conteudo-protegido');
@@ -32,16 +32,19 @@ const showWelcomeScreen = () => {
     if (protectedContent) protectedContent.style.display = 'none';
 };
 
+// Função para mostrar o conteúdo protegido em qualquer página
 const showProtectedContent = () => {
     const welcomeScreen = document.getElementById('welcome-screen');
     const protectedContent = document.getElementById('conteudo-protegido');
     if (welcomeScreen) welcomeScreen.style.display = 'none';
     if (protectedContent) protectedContent.style.display = 'block';
-    // Dispara um evento para outras páginas (como o gerador) saberem que podem carregar o seu conteúdo.
     document.dispatchEvent(new CustomEvent('authReady'));
 };
 
 window.addEventListener('DOMContentLoaded', () => {
+    const protectedContent = document.getElementById('conteudo-protegido');
+    if(protectedContent) protectedContent.style.display = 'none';
+
     const script = document.createElement('script');
     script.setAttribute('data-clerk-publishable-key', CLERK_PUBLISHABLE_KEY);
     script.async = true;
@@ -52,7 +55,6 @@ window.addEventListener('DOMContentLoaded', () => {
         window.Clerk.load().then(() => {
             const isIndexPage = !!document.getElementById('welcome-screen');
 
-            // Ouve por qualquer mudança no estado de autenticação
             window.Clerk.addListener(({ session }) => {
                 if (session) {
                     setupUserControls(session.user);
@@ -61,21 +63,16 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (isIndexPage) {
                         showWelcomeScreen();
                     } else {
-                        // Se o logout acontecer noutra página, redireciona para a página principal
                         window.location.href = '/';
                     }
                 }
             });
 
-            // Configura o botão de "Entrar" na página principal
             if (isIndexPage) {
                 const signInButton = document.getElementById('sign-in-button');
-                if (signInButton) {
-                    signInButton.onclick = () => window.Clerk.openSignIn();
-                }
+                if (signInButton) signInButton.onclick = () => window.Clerk.openSignIn();
             }
             
-            // Verificação inicial quando a página carrega
             if (window.Clerk.session) {
                 setupUserControls(window.Clerk.session.user);
                 showProtectedContent();
@@ -88,10 +85,6 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
-    
-    // Esconde o conteúdo por defeito para evitar "flash"
-    const protectedContent = document.getElementById('conteudo-protegido');
-    if(protectedContent) protectedContent.style.display = 'none';
     
     document.head.appendChild(script);
 });
