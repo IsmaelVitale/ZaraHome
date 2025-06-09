@@ -1,7 +1,6 @@
 [
-  .[] | select(.date != "17/06/2025"),
   {
-    "date": "17/06/2025",
-    "file": "dezessetedejunho.json"
+    "date": "06/06/2025",
+    "file": "seisdejunho.json"
   }
 ]
