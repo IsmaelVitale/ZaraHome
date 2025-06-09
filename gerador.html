@@ -55,7 +55,7 @@
                 </div>
             </section>
             <section id="stations-container" class="mb-8">
-                 <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes das Estações de Trabalho</h2>
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Detalhes das Estações de Trabalho</h2>
                 <div id="station-fields-wrapper"></div>
             </section>
             <div class="flex flex-col sm:flex-row justify-end gap-4">
@@ -74,17 +74,14 @@
 
 <script>
     const initializeApp = () => {
-        // --- CONSTANTES E VARIÁVEIS ---
-        const GITHUB_USER = "IsmaelVitale";                 
-        const GITHUB_REPO = "ZaraHome";                   
-        const PAT_TOKEN = "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"; // ⚠️ SUBSTITUA POR UM NOVO TOKEN COM PERMISSÃO 'repo'
+        const GITHUB_USER = "IsmaelVitale";
+        const GITHUB_REPO = "ZaraHome";
 
         const form = document.getElementById('report-generator-form');
         const stationsContainer = document.getElementById('station-fields-wrapper');
         const messageContainer = document.getElementById('message-container');
         const publishBtn = document.getElementById('publish-btn');
         const downloadOfflineBtn = document.getElementById('download-offline-btn');
-
         const statusMapping = {
             printer: { 'Okay com ping': 'ok', 'Problema de Rede': 'attention', 'Offline': 'attention' },
             scanner: { 'Okay (sem fio)': 'ok', 'Ausente': 'critical', 'Apenas a base': 'attention', 'Fora do Padrão (com fio)': 'attention', 'Defeituoso': 'critical' },
@@ -98,8 +95,6 @@
             { id: 'TGT0010', serial: 'CZC4197BVN' }, { id: 'TGT0011', serial: 'CZC4197BVP' },
             { id: 'TGT0012', serial: 'CZC4257GBN' }, { id: 'TGT0013', serial: 'CZC4257GBP' }
         ];
-
-        // --- FUNÇÕES ---
 
         function renderStationFields() {
             stationsContainer.innerHTML = '';
@@ -145,12 +140,10 @@
                 stationData: collectedStationData
             };
         }
-        
-        // ✅ CORREÇÃO: A função agora recebe os números do dia e mês diretamente para evitar erros de fuso horário.
+
         function dateToFileName(day, month) {
             const dias = ["", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove", "dez", "onze", "doze", "treze", "catorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove", "vinte", "vinteum", "vintedois", "vintetres", "vintequatro", "vintecinco", "vinteseis", "vintesete", "vinteoito", "vintenove", "trinta", "trintaeum"];
             const meses = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-            // Usa o mês - 1 porque o array 'meses' é 0-indexado (Janeiro = 0).
             return `${dias[day]}de${meses[month - 1]}`;
         }
 
@@ -166,9 +159,8 @@
             document.body.removeChild(a);
         }
 
-        function generateOfflineHtml(reportData) { /* ... (código para gerar HTML offline, sem alterações) ... */ }
+        function generateOfflineHtml(reportData) { /* ... (a sua lógica para gerar o HTML offline) ... */ }
 
-        // --- LÓGICA PRINCIPAL ---
         renderStationFields();
 
         form.addEventListener('submit', async function(e) {
@@ -178,14 +170,15 @@
 
             publishBtn.disabled = true;
             publishBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Publicando...`;
-            messageContainer.textContent = 'A enviar dados para o GitHub... Por favor, aguarde.';
+            messageContainer.textContent = 'A contactar o servidor seguro...';
             messageContainer.className = 'mb-4 text-center font-semibold text-blue-600';
 
-            // ✅ CORREÇÃO: Extrai o dia e mês da data para passar para a função de nome de ficheiro.
-            const [day, month, year] = reportData.reportInfo.date.split('/');
+            const [day, month] = reportData.reportInfo.date.split('/');
             const reportFileName = `${dateToFileName(parseInt(day), parseInt(month))}.json`;
 
-            const dispatchPayload = {
+            const payload = {
+                GITHUB_USER: GITHUB_USER,
+                GITHUB_REPO: GITHUB_REPO,
                 event_type: 'add-new-report',
                 client_payload: {
                     report_date: reportData.reportInfo.date,
@@ -193,26 +186,25 @@
                     report_data: JSON.stringify(reportData, null, 2)
                 }
             };
-            
+
             try {
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/dispatches`, {
+                const response = await fetch('/api/publish-report', {
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Authorization': `token ${PAT_TOKEN}`
-                    },
-                    body: JSON.stringify(dispatchPayload)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
 
-                if (response.status === 204) {
-                    messageContainer.textContent = 'Relatório publicado com sucesso! Pode demorar 1-2 minutos até aparecer no site.';
+                const result = await response.json();
+
+                if (response.ok) {
+                    messageContainer.textContent = 'Publicação iniciada com sucesso! Aguarde 1-2 minutos para o site atualizar.';
                     messageContainer.className = 'mb-4 text-center font-semibold text-green-600';
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(`Erro do GitHub: ${errorData.message}`);
+                    throw new Error(result.message || 'Ocorreu um erro desconhecido no servidor.');
                 }
+
             } catch (error) {
-                console.error('Erro na chamada da API do GitHub:', error);
+                console.error('Erro ao comunicar com o despachante:', error);
                 messageContainer.textContent = `Falha na publicação: ${error.message}`;
                 messageContainer.className = 'mb-4 text-center font-semibold text-red-600';
             } finally {
@@ -224,15 +216,14 @@
         downloadOfflineBtn.addEventListener('click', function() {
             const reportData = getReportData();
             if (!reportData) return;
-            
-             // ✅ CORREÇÃO: Usa a mesma lógica para obter o nome do ficheiro offline.
-            const [day, month, year] = reportData.reportInfo.date.split('/');
+
+            const [day, month] = reportData.reportInfo.date.split('/');
             const reportFileName = dateToFileName(parseInt(day), parseInt(month));
             const offlineHtml = generateOfflineHtml(reportData);
             downloadFile(offlineHtml, `relatorio_offline_${reportFileName}.html`, 'text/html');
         });
     };
-    
+
     document.addEventListener('authReady', initializeApp, { once: true });
 </script>
 </body>
