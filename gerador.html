@@ -160,20 +160,18 @@
             document.body.removeChild(a);
         }
 
-        // Esta função 'generateOfflineHtml' precisa ser implementada.
-        // Ela deve receber os dados do relatório e gerar o HTML completo do painel de auditoria.
-        // Por enquanto, é um placeholder.
+        // Função para gerar o HTML offline completo do painel de auditoria
         function generateOfflineHtml(reportData) {
-            // Placeholder: Retorna um HTML básico.
-            // Para ser funcional, você precisaria injetar os dados do reportData
-            // em um template HTML completo do dashboard (relatorio.html).
+            // Este é o conteúdo completo do seu 'relatorio.html' com os dados injetados.
+            // Copiei o 'relatorio.html' que você forneceu anteriormente, com as correções de gráfico.
+            // e os dados são passados como um objeto JS diretamente.
             return `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório de Auditoria - ${reportData.reportInfo.sector} - ${reportData.reportInfo.date}</title>
+    <title>Painel de Auditoria - ${reportData.reportInfo.sector}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -185,16 +183,22 @@
         .status-attention { background-color: #fef9c3; color: #854d0e; }
         .status-critical { background-color: #fee2e2; color: #991b1b; }
         .status-neutral { background-color: #e5e7eb; color: #374151; }
-        .filter-btn.active { background-color: #1f2937; color: #fff; font-weight: 600; }
+        /* Os filtros da tabela não são dinâmicos no HTML offline, então não precisam de .filter-btn.active */
     </style>
 </head>
 <body class="bg-stone-50 text-gray-800">
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="mb-6">
+            <a href="#" onclick="window.close()" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Fechar Relatório
+            </a>
+        </div>
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Painel de Auditoria de Estações de Trabalho</h1>
             <p class="text-lg text-gray-600">Setor: ${reportData.reportInfo.sector} | Data da Verificação: ${reportData.reportInfo.date}</p>
         </header>
-        <section id="kpis" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Total de Estações</h2><p class="text-3xl font-semibold text-gray-900">${reportData.kpis.totalStations}</p></div>
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Estações com Ocorrências</h2><p class="text-3xl font-semibold text-red-600">${reportData.kpis.stationsWithOccurrences}</p></div>
             <div class="bg-white p-6 rounded-lg shadow-sm border"><h2 class="text-sm font-medium text-gray-500">Taxa de Falha (Desacoplador)</h2><p class="text-3xl font-semibold text-red-600">${reportData.kpis.decouplerFailureRate}%</p></div>
@@ -225,7 +229,7 @@
                         </thead>
                         <tbody id="station-table-body" class="bg-white divide-y">
                             ${reportData.stationData.map(station => {
-                                const statusMapOffline = { // Status map para o HTML offline
+                                const statusMapOffline = {
                                     ok: { class: 'status-ok', icon: '<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' },
                                     attention: { class: 'status-attention', icon: '<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' },
                                     critical: { class: 'status-critical', icon: '<svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' },
@@ -253,9 +257,10 @@
     <script>
         // O JS para os gráficos do HTML offline
         document.addEventListener('DOMContentLoaded', () => {
-            const chartData = ${JSON.stringify(reportData.stationData)}; // Passa os dados do JSON para o script offline
-
-            const scannerCounts = chartData.reduce((acc, s) => {
+            // Os dados do relatório são diretamente injetados aqui
+            const reportDataOffline = ${JSON.stringify(reportData)}; 
+            
+            const scannerCounts = reportDataOffline.stationData.reduce((acc, s) => {
                 (s.scanner.text.includes('Okay')) ? acc.ok++ :
                 (s.scanner.text.includes('Ausente')) ? acc.absent++ :
                 (s.scanner.text.includes('Padrão')) ? acc.nonStandard++ :
@@ -263,7 +268,7 @@
                 return acc;
             }, { ok: 0, absent: 0, nonStandard: 0, incomplete: 0 });
 
-            const decouplerCounts = chartData.reduce((acc, s) => {
+            const decouplerCounts = reportDataOffline.stationData.reduce((acc, s) => {
                 (s.decoupler.text.includes('verde')) ? acc.ok++ :
                 (s.decoupler.text.includes('vermelha')) ? acc.error++ :
                 (s.decoupler.text.includes('apagada')) && acc.off++;
@@ -290,31 +295,38 @@
                 cutout: '60%'
             };
 
-            new Chart(document.getElementById('scannerChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Conforme', 'Ausente', 'Fora do Padrão', 'Incompleto'],
-                    datasets: [{
-                        data: [scannerCounts.ok, scannerCounts.absent, scannerCounts.nonStandard, scannerCounts.incomplete],
-                        backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#eab308'],
-                        borderWidth: 2
-                    }]
-                },
-                options: chartOptions
-            });
+            // Certifique-se de que o canvas existe antes de tentar criar o gráfico
+            const scannerChartCanvas = document.getElementById('scannerChart');
+            if (scannerChartCanvas) {
+                new Chart(scannerChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Conforme', 'Ausente', 'Fora do Padrão', 'Incompleto'],
+                        datasets: [{
+                            data: [scannerCounts.ok, scannerCounts.absent, scannerCounts.nonStandard, scannerCounts.incomplete],
+                            backgroundColor: ['#22c55e', '#ef4444', '#f97316', '#eab308'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
 
-            new Chart(document.getElementById('decouplerChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: ['Conforme', 'Com Erro', 'Inoperante'],
-                    datasets: [{
-                        data: [decouplerCounts.ok, decouplerCounts.error, decouplerCounts.off],
-                        backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
-                        borderWidth: 2
-                    }]
-                },
-                options: chartOptions
-            });
+            const decouplerChartCanvas = document.getElementById('decouplerChart');
+            if (decouplerChartCanvas) {
+                new Chart(decouplerChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Conforme', 'Com Erro', 'Inoperante'],
+                        datasets: [{
+                            data: [decouplerCounts.ok, decouplerCounts.error, decouplerCounts.off],
+                            backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
         });
     </script>
 </body>
@@ -335,8 +347,8 @@
             messageContainer.textContent = 'A contactar o servidor seguro...';
             messageContainer.className = 'mb-4 text-center font-semibold text-blue-600';
 
-            const [day, month] = reportData.reportInfo.date.split('/');
-            const reportFileName = `${dateToFileName(parseInt(day), parseInt(month))}.json`;
+            const [year, month, day] = reportData.reportInfo.date.split('/').map(Number); // Converte para número
+            const reportFileName = `${dateToFileName(day, month)}.json`; // Ajusta para usar dia e mês
 
             const payload = {
                 GITHUB_USER: GITHUB_USER,
@@ -379,10 +391,11 @@
             const reportData = getReportData();
             if (!reportData) return;
             
-            const [day, month] = reportData.reportInfo.date.split('/');
-            const reportFileName = dateToFileName(parseInt(day), parseInt(month));
-            const offlineHtml = generateOfflineHtml(reportData); // Esta função precisa de ser implementada
-            downloadFile(offlineHtml, `relatorio_offline_${reportFileName}.html`, 'text/html');
+            // Para download offline, use a data completa para o nome do arquivo, se preferir
+            const [year, month, day] = reportData.reportInfo.date.split('/').map(Number); // Mapeia para números
+            const reportFileNameSuffix = `${dateToFileName(day, month)}`;
+            const offlineHtml = generateOfflineHtml(reportData); 
+            downloadFile(offlineHtml, `relatorio_auditoria_zara_home_${reportFileNameSuffix}.html`, 'text/html');
         });
     };
     
