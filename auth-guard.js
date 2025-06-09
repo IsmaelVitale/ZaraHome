@@ -1,7 +1,7 @@
 // auth-guard.js - V6 Final com Chave de Produção
 
 // Chave publicável de PRODUÇÃO da sua aplicação no Clerk.
-const CLERK_PUBLISHABLE_KEY = "pk_test_dm9jYWwtYmlzb24tODkuY2xlcmsuYWNjb3VudHMuZGV2JA";
+const CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsucmVwb3J0c2luZGl0ZXguc2l0ZSQ";
 
 // Aguarda o carregamento completo do DOM para garantir que todos os elementos HTML existam.
 window.addEventListener('DOMContentLoaded', () => {
