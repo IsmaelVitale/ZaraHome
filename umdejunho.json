@@ -5,7 +5,7 @@
   },
   "kpis": {
     "totalStations": 12,
-    "stationsWithOccurrences": 0,
+    "stationsWithOccurrences": 1,
     "decouplerFailureRate": "0",
     "scannerAbsentCount": 0
   },
@@ -212,8 +212,8 @@
       "id": "TGT0013",
       "serial": "CZC4257GBP",
       "printer": {
-        "status": "ok",
-        "text": "Okay com ping"
+        "status": "attention",
+        "text": "Problema de Rede"
       },
       "scanner": {
         "status": "ok",
@@ -224,7 +224,7 @@
         "text": "Luz verde (Okay)"
       },
       "obs": "",
-      "overall": "ok"
+      "overall": "attention"
     }
   ]
 }
